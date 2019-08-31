@@ -57,6 +57,12 @@
     {:max-weight capacity
      :items items}))
 
+(def strongly-correlated-span-instance-100
+  (let [items (span 2 10 100)
+        capacity (Math/floor (* (rand) (reduce + (map :weight items))))]
+    {:max-weight capacity
+     :items items})))
+
 (defn knapsack-weight-value
   "knapsack-weight-value computes the weight and value of a solution.
    This takes a sequence of `knapsack-items` and `proposed-solution`
