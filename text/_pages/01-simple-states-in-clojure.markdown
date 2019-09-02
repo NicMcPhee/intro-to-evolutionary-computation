@@ -4,7 +4,7 @@ title:  "Implementing simple states in Clojure"
 categories: search clojure
 ---
 
-In [the previous installment]({% link _pages/intro-to-search.markdown %}) we
+In [the previous installment]({% link _pages/00-intro-to-search.markdown %}) we
 looked at a (very) simple example of search. In this installment we'll look
 at how to implement that in Clojure, and some of the most important (if
 quite basic) search algorithms: Breadth-first and depth-first search.
@@ -88,5 +88,5 @@ and make sure you understand what it's doing here.
 ## Next: Breadth-first and depth-first search
 
 Now that we have the code in place to essentially generate a "tree" of states,
-in [the next installment]({% link _pages/simple-search-algorithms.markdown %}) we'll look at two important (but simple) search
+in [the next installment]({% link _pages/02-simple-search-algorithms.markdown %}) we'll look at two important (but simple) search
 algorithms: breadth-first and depth-first search.

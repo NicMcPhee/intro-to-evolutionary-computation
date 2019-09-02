@@ -102,7 +102,7 @@ want to (re)explore the paths from that state.
 
 # Next: Implementing these ideas in Clojure
 
-In [the next installment]({% link _pages/simple-states-in-clojure.markdown %}) we'll
+In [the next installment]({% link _pages/01-simple-states-in-clojure.markdown %}) we'll
 look at how to represent and manipulate these
 simple states in the programming language Clojure, before moving on to various
 algorithms for searching "trees" of such states.
