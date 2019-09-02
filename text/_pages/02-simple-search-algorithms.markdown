@@ -23,6 +23,12 @@ from `open`. We then check to see if `next-node` is a goal state; if it is
 then we're done! If not, then we compute the _child_ nodes and add them
 back into `open` to be (possibly) explored in future iterations.
 
+Also, because there are a lot of ways that search algorithms can spin off
+into what are effectively infinite loops, I'm going to add a `max-calls`
+argument to `search` that indicates the maximum number of recursive calls
+to make before exiting. We'll decrement this in each recursive call, and
+exit if it hits zero.
+
 All that might look roughly like this in Clojure:
 <input type="checkbox" id="cb1"/><label for="cb1"><sup class="note-marker">\*</sup></label><span>
 There's actually a problem with this approach. Since we might in realistic
@@ -41,14 +47,17 @@ run out of memory. We might return to this later.
 
 ```clojure
 (defn search
-  [open-nodes]
+  [max-calls open-nodes]
   (let [next-node (get-next-node open-nodes)]
     (if (goal? next-node)
       next-node
-      (search
-        (add-children
-          (children next-node)
-          (remove #(= % next-node) open-nodes))))))
+      (if (zero? max-calls)
+        :max-calls-reached
+        (search
+          (dec max-calls)
+          (add-children
+            (children next-node)
+            (remove #(= % next-node) open-nodes)))))))
 ```
 
 This assumes the existence of several functions, some of which are problem
@@ -167,7 +176,7 @@ least a test problem to try things out.
 Using [the state work for our simple example from before]({% link _pages/01-simple-states-in-clojure.markdown %})
 we can define `goal?` and `children`. The one change we'll make to what was
 done before is we're going to limit ourselves so that both `x` and `y` are
-between 0 and 3, inclusive on both ends. So we'll modify `all-moves` to
+between 0 and 10, inclusive on both ends. So we'll modify `all-moves` to
 filter out any states that violate those constraints.
 
 ```klipse
@@ -188,7 +197,7 @@ filter out any states that violate those constraints.
 
 (defn legal-coordinate
   [x]
-  (and (>= x 0) (<= x 3)))
+  (and (>= x 0) (<= x 10)))
 
 (defn legal-state
   [position]
@@ -218,45 +227,53 @@ the search progresses.
 
 ```klipse
 (defn search
-  [get-next-node add-children goal? children open-nodes]
+  [max-calls get-next-node add-children goal? children open-nodes]
   (println open-nodes)
   (let [next-node (get-next-node open-nodes)]
     (if (goal? next-node)
       next-node
-      (search
-        get-next-node
-        add-children
-        goal?
-        children
-        (add-children
-          (children next-node)
-          (remove #(= % next-node) open-nodes))))))
+      (if (zero? max-calls)
+        :max-calls-reached
+        (search
+          (dec max-calls)
+          get-next-node
+          add-children
+          goal?
+          children
+          (add-children
+            (children next-node)
+            (remove #(= % next-node) open-nodes)))))))
 ```
 
 Now let's see how it works! We can start with bread-first search:
 
 ```klipse
-(search get-next-node bfs-add-children goal? children [[1 1]])
+(search 20 get-next-node bfs-add-children goal? children [[1 1]])
 ```
 
 Huzzah!
 
 ![Microscope icon](/assets/Microscope_icon_32.png) Feel free to
-play around some, but very very careful not to have the start position be
-very far from `[0 0]`. Even "short" distances like `[3 3]` quickly generate
-*many* nodes. In our very simple example problem, for example, each state has
-four child states, which means the number of states at level $$n+1$$ will be
-4 times the number of states at level $$n$$, so the total number of nodes in
-$$n$$ levels is $$O(n^4)$$.
+play with this. Change the starting state, e.g., replace `[1 1]` to `[3 4]`.
+Change `bfs-add-children` to `dfs-add-children`. How to the search behaviors
+change? When do you find a success, and when do you not? What are some
+obvious problems you can see by looking at the printed `open` lists.
 {:.active-example}
 
-Also, definitely *don't* try to replace breadth-first search with
-depth-first search (i.e., replace `bfs-add-children` with
-`dfs-add-children`) – you'll end up with an infinite loop because you'll
-go from `[1 1]` to `[1 2]` to `[1 3]` to `[1 4]`, etc. That will never find
-the solution, and you'll lock up your browser tab or window completely.
-We'll fix that problem down the road.
-{:.active-example}
+⚠️ **Be careful with raising `max-calls`.** If you crank it up to
+something like 50 or 100 (or higher) you'll find that the web page locks up
+until it finally processes all those calls. The Clojure(Script)
+interpreter this web page uses will just grind away until all the expressions
+in the page complete their evaluation, and you won't be able to do much
+(if anything) with the web page until it finishes.
+
+Note that even "short" distances like `[3 3]` quickly generate
+_many_ nodes in the `open` list.
+In our very simple example problem, for example, each state has
+four child states, which means the number of states at level $$n+1$$ will be
+4 times the number of states at level $$n$$, so the total number of nodes in
+$$n$$ levels is $$O(n^4)$$. So in a simplistic approach like this, the `open`
+list grows _very_ quickly.
 
 So this works, but there are issues, both in the structure of the code and in
 the logic of the search itself. if you look at the output above, for example,
@@ -265,4 +282,5 @@ for example, numerous instances of `[1 1]` in our output, with as many as
 four copies of `[1 1]` in `open-states` a couple of times.
 
 In [the next installment]({% link _pages/03-clean-up-search-implementation.markdown %})
-we'll clean some of that up.
+we'll clean a lot of that up, generating a much more useful (but still very
+simple) search tool.
