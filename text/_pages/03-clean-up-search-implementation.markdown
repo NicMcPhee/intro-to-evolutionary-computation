@@ -14,15 +14,15 @@ algorithms can also be improved.
 ## Avoiding duplicate exploration
 
 The first concern is the the fact that we end up with the same state in the
-`open` list multiple times, which obviously isn't great. There are in fact
+`frontier` list multiple times, which obviously isn't great. There are in fact
 two separate issues. One is the problem of multiple copies of a node in the
-`open` list; this we can solve by "simply" being careful to only add new nodes
-to the `open` list if they're not already there.
+`frontier` list; this we can solve by "simply" being careful to only add new nodes
+to the `frontier` list if they're not already there.
 <input type="checkbox" id="cb1"/><label for="cb1"><sup class="note-marker">\*</sup></label><span>
-A "simple" solution would be to change `open` from a sequence to a Clojure
+A "simple" solution would be to change `frontier` from a sequence to a Clojure
 `set`, which would ensure that there would be no duplicates. The problem,
 though, would be that sets are inherently not ordered sequences, and our
-current approach depends crucially on `open` being a sequence whose order
+current approach depends crucially on `frontier` being a sequence whose order
 represents the order in which nodes should be explored.
 </span>
 
@@ -30,15 +30,15 @@ The other problem is that we could explore state $$s$$ at one point, and then
 later have $$s$$ appear again as the child of some other state. Since we've
 already explored $$s$$, we don't want to explore it again. That means we have
 to in some sense "remember" what states we've explored so we don't explore a
-state twice. The standard approach to that is to also have a `closed` collection
+state twice. The standard approach to that is to also have a `visited` collection
 which holds all the states that we've already explored. Here I will use a
 Clojure set, since we don't care about the order in which nodes were added to
-`closed`.
+`visited`.
 
 To add those to our code involves two changes. The first is to remove
-everything from the set of children that already exist in `open`. For now
+everything from the set of children that already exist in `frontier`. For now
 we'll do this by converting the collection of children to a set, and the
-`open` list to a set, and then using the built-in `clojure.set/difference`
+`frontier` list to a set, and then using the built-in `clojure.set/difference`
 function to remove the duplicates.<input type="checkbox" id="cb2"/><label for="cb2"><sup class="note-marker">\*</sup></label><span>
 All this generation and re-generation of sets isn't terribly efficient, but
 we'll live with this for now.
@@ -46,11 +46,11 @@ we'll live with this for now.
 
 ```klipse
 (defn remove-previous-states
-  [new-states open-states closed-states]
+  [new-states frontier visited]
   (clojure.set/difference
     ; The function `set` takes a collection and returns a set with those items
     (set new-states)
-    (clojure.set/union (set open-states) (set closed-states))))
+    (clojure.set/union (set frontier) (set visited))))
 ```
 
 ![Microscope icon](/assets/Microscope_icon_32.png)
@@ -76,27 +76,27 @@ types. What we'll get back, though, will always be a set.
 ```
 
 Now that we've made sure that we don't add previously seen states to
-`open-states`, we now need to sort out *closed* nodes. This involves
+`frontier`, we now need to sort out *visited* nodes. This involves
 adding Yet Another Argument (we'll help clean that up later) for the
-`closed` set and add the `next-node` to that along the way.
+`visited` set and add the `next-node` to that along the way.
 
 ```clojure
 (defn search
-  [get-next-node add-children goal? children open-nodes closed-nodes]
-  (println open-nodes)
-  (let [next-node (get-next-node open-nodes)]
+  [get-next-node add-children goal? make-children frontier visited]
+  (println frontier)
+  (let [next-node (get-next-node frontier)]
     (if (goal? next-node)
       next-node
       (search
         get-next-node
         add-children
         goal?
-        children
+        make-children
         (add-children
-          (remove-previous-states (children next-node) open-nodes closed-nodes)
-          open-nodes)
-        ; Add `next-node` to the set of `closed-nodes`
-        (conj closed-nodes next-node)))))
+          (remove-previous-states (make-children next-node) frontier visited)
+          frontier)
+        ; Add `next-node` to the set of `visited`
+        (conj visited next-node)))))
 ```
 
 The function `conj` above is a
@@ -131,9 +131,9 @@ logically break into three groups:
 
 * `get-next-node` and `add-children` specify the behavior of the particular
   search algorithm we want `search` to use.
-* `goal?` and `children` specify the features of the problem space we're
+* `goal?` and `make-children` specify the features of the problem space we're
   searching.
-* `open-nodes` and `closed-nodes` are "bookkeeping" arguments needed by
+* `frontier` and `visited` are "bookkeeping" arguments needed by
   `search`
 
 Unfortunately, there's nothing in this blob of arguments that
@@ -155,10 +155,10 @@ fields:
 ```clojure
 (define sample-problem
   {:goal? …
-   :children …})
+   :make-children …})
 ```
 
-Here we use keywords (e.g., `:goal?` and `:children`) as the *keys* in our map;
+Here we use keywords (e.g., `:goal?` and `:make-children`) as the *keys* in our map;
 this is very common, but not required. Pretty much any values can be used as
 keys; Clojure is just able to do lookup on keywords particularly efficiently,
 which makes them a nice choice. The values can also be pretty much
@@ -198,7 +198,7 @@ here's a definition of our `sample-problem`:
 
 (def sample-problem
   {:goal? origin-goal?
-   :children grid-children})
+   :make-children grid-children})
 ```
 
 Now we can extract and apply the relevant functions from `sample-problem`:
@@ -208,7 +208,7 @@ Now we can extract and apply the relevant functions from `sample-problem`:
 ```
 
 ![Microscope icon](/assets/Microscope_icon_32.png)
-Change `[0 0]` to a different position. Change `:goal?` to `:children`, and
+Change `[0 0]` to a different position. Change `:goal?` to `:make-children`, and
 then play with the position argument there as well. (Remember that we limit
 child coordinates to be between 0 and 10.)
 {:.active-example}
@@ -221,16 +221,16 @@ developed the following definitions for depth-first and breadth-first search:
 ```clojure
 ; Same for both search algorithms
 (defn get-next-node
-  [open-nodes]
-  (first open-nodes))
+  [frontier]
+  (first frontier))
 
 (defn dfs-add-children
-  [children open-nodes]
-  (concat children open-nodes))
+  [children frontier]
+  (concat children frontier))
 
 (defn bfs-add-children
-  [children open-nodes]
-  (concat open-nodes children))
+  [children frontier]
+  (concat frontier children))
 ```
 
 We can, however, take this opportunity to simplify these definitions. Note
@@ -290,8 +290,8 @@ keys as follows:
 
 ```clojure
 (defn search
-  [search-algorithm problem open-nodes closed-nodes]
-  (let [next-node ((:get-next-node search-algorithm) open-nodes)]
+  [search-algorithm problem frontier visited]
+  (let [next-node ((:get-next-node search-algorithm) frontier)]
     (if ((:goal? problem) next-node)
       …
       )))
@@ -332,10 +332,10 @@ We can now use destructing to extract the relevant components from our
 ```klipse
 (defn search
   [{:keys [get-next-node add-children] :as search-algorithm}
-   {:keys [goal? children] :as problem}
-   open-nodes closed-nodes max-calls]
-  (println open-nodes)
-  (let [next-node (get-next-node open-nodes)]
+   {:keys [goal? make-children] :as problem}
+   frontier visited max-calls]
+  (println frontier)
+  (let [next-node (get-next-node frontier)]
     (if (goal? next-node)
       next-node
       (if (zero? max-calls)
@@ -344,9 +344,9 @@ We can now use destructing to extract the relevant components from our
           search-algorithm
           problem
           (add-children
-            (remove-previous-states (children next-node) open-nodes closed-nodes)
-            (rest open-nodes))
-          (conj closed-nodes next-node)
+            (remove-previous-states (make-children next-node) frontier visited)
+            (rest frontier))
+          (conj visited next-node)
           (dec max-calls))))))
 ```
 
@@ -362,7 +362,7 @@ make things *much* better:
 (search depth-first-search sample-problem [[3 3]] #{} 20)
 ```
 
-Our search now terminates, and the length of the `open` list never grows to
+Our search now terminates, and the length of the `frontier` list never grows to
 insane lengths because we never have duplicates there. Note that depth-first
 search *would* go off into an infinite search if we didn't limit the
 coordinates. Since our depth-first implementation applies the `up` move first,
@@ -371,7 +371,8 @@ starting point, only ever finding the goal if it happened to be right above
 our starting point.
 
 ![Microscope icon](/assets/Microscope_icon_32.png)
-It's still quite easy to give it problems it can't solve, typically by moving
+It's still quite easy to give it problems it can't solve in a reasonable
+amount of time, typically by moving
 the starting location a little farther away from the goal location. How
 differently to breadth-first and depth-first search respond to different
 starting points?
