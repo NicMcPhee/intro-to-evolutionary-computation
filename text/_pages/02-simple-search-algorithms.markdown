@@ -6,6 +6,16 @@ categories: search clojure
 
 # {{ page.title }}
 
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [{{ page.title }}](#-pagetitle-)
+	- [A general approach to search](#a-general-approach-to-search)
+	- [Depth-first search](#depth-first-search)
+	- [Breadth-first search](#breadth-first-search)
+	- [Actually implementing search](#actually-implementing-search)
+
+<!-- /TOC -->
+
 In [the previous installment]({% link _pages/01-simple-states-in-clojure.markdown %}) we
 looked at how we might represent (very) simple kinds of search states
 in Clojure. In this installment we'll look

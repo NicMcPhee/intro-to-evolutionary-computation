@@ -4,6 +4,17 @@ title:  "Implementing simple states in Clojure"
 categories: search clojure
 ---
 
+# {{ page.title }}
+
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [{{ page.title }}](#-pagetitle-)
+	- [Representing states](#representing-states)
+	- [Generating "child" states](#generating-child-states)
+	- [Next: Breadth-first and depth-first search](#next-breadth-first-and-depth-first-search)
+
+<!-- /TOC -->
+
 In [the previous installment]({% link _pages/00-intro-to-search.markdown %}) we
 looked at a (very) simple example of search. In this installment we'll look
 at how to implement that in Clojure, and some of the most important (if

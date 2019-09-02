@@ -6,6 +6,20 @@ categories: search clojure
 
 # {{ page.title }}
 
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [{{ page.title }}](#-pagetitle-)
+	- [Avoiding duplicate exploration](#avoiding-duplicate-exploration)
+	- [So many arguments!](#so-many-arguments)
+		- [Encapsulating problems](#encapsulating-problems)
+		- [Encapsulating search algorithms](#encapsulating-search-algorithms)
+	- [The new version of `search`](#the-new-version-of-search)
+	- [Yay – it works!](#yay-it-works)
+	- [loop-recur to further reduce arguments](#loop-recur-to-further-reduce-arguments)
+	- [Next: Heuristic search](#next-heuristic-search)
+
+<!-- /TOC -->
+
 In [the previous installment]({% link _pages/02-simple-search-algorithms.markdown %}) we
 developed an working initial implementation of our simple search algorithms in
 Clojure. Our code can be tidied up in several ways, and the logic of the search
