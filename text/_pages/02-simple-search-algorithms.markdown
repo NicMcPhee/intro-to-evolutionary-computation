@@ -16,12 +16,12 @@ important (if simple) search algorithms: Breadth-first and depth-first search.
 
 A number of search algorithms, including both
 breadth-first and depth-first search, have a shared structure. They have
-an _open_ collection of nodes that still need to be explored, which
+an _frontier_ collection of nodes that still need to be explored, which
 initially just contains the root node of the search tree (i.e., the
 starting point). Then the search process involves selecting a node `next-node`
-from `open`. We then check to see if `next-node` is a goal state; if it is
+from `frontier`. We then check to see if `next-node` is a goal state; if it is
 then we're done! If not, then we compute the _child_ nodes and add them
-back into `open` to be (possibly) explored in future iterations.
+back into `frontier` to be (possibly) explored in future iterations.
 
 Also, because there are a lot of ways that search algorithms can spin off
 into what are effectively infinite loops, I'm going to add a `max-calls`
@@ -47,8 +47,8 @@ run out of memory. We might return to this later.
 
 ```clojure
 (defn search
-  [max-calls open-nodes]
-  (let [next-node (get-next-node open-nodes)]
+  [max-calls frontier]
+  (let [next-node (get-next-node frontier)]
     (if (goal? next-node)
       next-node
       (if (zero? max-calls)
@@ -56,8 +56,8 @@ run out of memory. We might return to this later.
         (search
           (dec max-calls)
           (add-children
-            (children next-node)
-            (remove #(= % next-node) open-nodes)))))))
+            (make-children next-node)
+            (remove #(= % next-node) frontier)))))))
 ```
 
 This assumes the existence of several functions, some of which are problem
@@ -67,29 +67,29 @@ We'll start with the two that define the behavior of the search algorithm,
 and don't depend on the details of the problem:
 
 * `get-next-node`, which determines which, of the possibly many nodes in
-  `open-nodes` is the node we're going to explore next.
+  `frontier` is the node we're going to explore next.
 * `add-children`, which determines how we are going to add the child nodes
-  into `open` before recursing back and continuing the search.
+  into `frontier` before recursing back and continuing the search.
 
 The various search algorithms then differ largely on a single questions: How do
-we decide which node to remove from `open` (i.e., `get-next-node`) and how to
-put the new children into `open` (i.e., `add-children`). It turns out that this
+we decide which node to remove from `frontier` (i.e., `get-next-node`) and how to
+put the new children into `frontier` (i.e., `add-children`). It turns out that this
 is related to the question of which type of collection we use
-for `open`, which could be a sequence, or a set, or any of a number
+for `frontier`, which could be a sequence, or a set, or any of a number
 of other data structures. It's quite straightforward, for example, to
-use a sequence for `open` and just always take the first node in the
+use a sequence for `frontier` and just always take the first node in the
 list as `next-node`. If we do that, it turns out that the big question
-becomes how to add the `children` into `open`?
+becomes how to add the `children` into `frontier`?
 
-Given that `open` is a sequence (an ordered list), there's essentially two
-simple ways to add the children: Append them to the front `open`, or append
-them to the end of `open`. It turns out that these two opens give us
+Given that `frontier` is a sequence (an ordered list), there's essentially two
+simple ways to add the children: Append them to the front `frontier`, or append
+them to the end of `frontier`. It turns out that these two options give us
 depth-first search (append to the front) and breadth-first search (append to
 the end).
 
 ## Depth-first search
 
-If we append children to the front of `open` we get depth-first search, where
+If we append children to the front of `frontier` we get depth-first search, where
 we explore the children (and all their descendants) of a node before
 exploring any of the siblings and their descendants. Consider, for example, the
 numbering on this graph, which shows the order in which the nodes would be
@@ -97,7 +97,7 @@ explored using depth-first search:
 
 ![Depth-first numbering of tree nodes.](https://upload.wikimedia.org/wikipedia/commons/1/1f/Depth-first-tree.svg)
 
-Here the `open` list changes as follows:
+Here the `frontier` list changes as follows:
 
 ```clojure
        [1]              ; initially just the start node
@@ -118,7 +118,7 @@ Here the `open` list changes as follows:
 
 ## Breadth-first search
 
-If we append children to the end of `open` we get breadth-first search, where
+If we append children to the end of `frontier` we get breadth-first search, where
 we explore the siblings of a node before moving down to the children.
 Consider, for example, the
 numbering on this graph, which shows the order in which the nodes would be
@@ -126,7 +126,7 @@ explored using depth-first search:
 
 ![Breadth-first numbering of tree nodes.](https://upload.wikimedia.org/wikipedia/commons/3/33/Breadth-first-tree.svg)
 
-Here the `open` list changes as follows:
+Here the `frontier` list changes as follows:
 
 ```clojure
        [1]                ; initially just the start node
@@ -149,12 +149,12 @@ Here the `open` list changes as follows:
 
 This means we can easily implement `get-next-node` and `add-children` for
 depth- and breadth-first search. They both
-just use `first` to get the first item from `open`:
+just use `first` to get the first item from `frontier`:
 
 ```klipse
 (defn get-next-node
-  [open-nodes]
-  (first open-nodes))
+  [frontier]
+  (first frontier))
 ```
 
 Where they differ is in `add-children`. In both cases we can use the `concat`
@@ -163,18 +163,18 @@ goes first and who goes last.
 
 ```klipse
 (defn dfs-add-children
-  [children open-nodes]
-  (concat children open-nodes))
+  [children frontier]
+  (concat children frontier))
 
 (defn bfs-add-children
-  [children open-nodes]
-  (concat open-nodes children))
+  [children frontier]
+  (concat frontier children))
 ```
 
-We're almost there, but we need the functions `goal?` and `children` for at
+We're almost there, but we need the functions `goal?` and `make-children` for at
 least a test problem to try things out.
 Using [the state work for our simple example from before]({% link _pages/01-simple-states-in-clojure.markdown %})
-we can define `goal?` and `children`. The one change we'll make to what was
+we can define `goal?` and `make-children`. The one change we'll make to what was
 done before is we're going to limit ourselves so that both `x` and `y` are
 between 0 and 10, inclusive on both ends. So we'll modify `all-moves` to
 filter out any states that violate those constraints.
@@ -203,7 +203,7 @@ filter out any states that violate those constraints.
   [position]
   (every? legal-coordinate position))
 
-(defn children
+(defn make-children
   [position]
   (filter legal-state (map (partial apply-move position) all-moves)))
 ```
@@ -218,18 +218,18 @@ can pass functions in as arguments. So we'll pass in
 - `get-next-node`
 - `add-children`
 - `goal?`
-- `children`
+- `make-children`
 
 as arguments; in the current setup we also have to pass them
 through in the recursive calls as well. So we can see what nodes are being
-explored, I've added a `println` that prints each value of `open-nodes` as
+explored, I've added a `println` that prints each value of `frontier` as
 the search progresses.
 
 ```klipse
 (defn search
-  [max-calls get-next-node add-children goal? children open-nodes]
-  (println open-nodes)
-  (let [next-node (get-next-node open-nodes)]
+  [max-calls get-next-node add-children goal? make-children frontier]
+  (println frontier)
+  (let [next-node (get-next-node frontier)]
     (if (goal? next-node)
       next-node
       (if (zero? max-calls)
@@ -239,16 +239,16 @@ the search progresses.
           get-next-node
           add-children
           goal?
-          children
+          make-children
           (add-children
-            (children next-node)
-            (remove #(= % next-node) open-nodes)))))))
+            (make-children next-node)
+            (remove #(= % next-node) frontier)))))))
 ```
 
 Now let's see how it works! We can start with bread-first search:
 
 ```klipse
-(search 20 get-next-node bfs-add-children goal? children [[1 1]])
+(search 20 get-next-node bfs-add-children goal? make-children [[1 1]])
 ```
 
 Huzzah!
@@ -257,7 +257,7 @@ Huzzah!
 play with this. Change the starting state, e.g., replace `[1 1]` to `[3 4]`.
 Change `bfs-add-children` to `dfs-add-children`. How to the search behaviors
 change? When do you find a success, and when do you not? What are some
-obvious problems you can see by looking at the printed `open` lists.
+obvious problems you can see by looking at the printed `frontier` lists.
 {:.active-example}
 
 ⚠️ **Be careful with raising `max-calls`.** If you crank it up to
@@ -268,18 +268,18 @@ in the page complete their evaluation, and you won't be able to do much
 (if anything) with the web page until it finishes.
 
 Note that even "short" distances like `[3 3]` quickly generate
-_many_ nodes in the `open` list.
+_many_ nodes in the `frontier` list.
 In our very simple example problem, for example, each state has
 four child states, which means the number of states at level $$n+1$$ will be
 4 times the number of states at level $$n$$, so the total number of nodes in
-$$n$$ levels is $$O(n^4)$$. So in a simplistic approach like this, the `open`
+$$n$$ levels is $$O(n^4)$$. So in a simplistic approach like this, the `frontier`
 list grows _very_ quickly.
 
 So this works, but there are issues, both in the structure of the code and in
 the logic of the search itself. if you look at the output above, for example,
 you'll notice that we end up "repeating ourselves" rather a lot. There are,
 for example, numerous instances of `[1 1]` in our output, with as many as
-four copies of `[1 1]` in `open-states` a couple of times.
+four copies of `[1 1]` in `frontier` a couple of times.
 
 In [the next installment]({% link _pages/03-clean-up-search-implementation.markdown %})
 we'll clean a lot of that up, generating a much more useful (but still very
