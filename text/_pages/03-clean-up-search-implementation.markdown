@@ -392,6 +392,69 @@ differently to breadth-first and depth-first search respond to different
 starting points?
 {:.active-example}
 
+## loop-recur to further reduce arguments
+
+There are still some slightly irksome things about this solution
+
+*   We have to actually put the start node in a collection of some sort when
+    we call `search`, when we're really prefer to just pass in the start node.
+*   We have to pass in the empty set for the `visited` collection when we call
+    search, which is annoying and error prone.
+*   We have to keep passing and destructuring `search-algorithm` and `problem`
+    in all the recursive calls, which feels wasteful and annoying.
+
+The first two of these we could solve by having `search` take just a start node
+and nothing for visited, and then construct the necessary collections and call
+a function with a charming name like `do-search` to actually do the work:
+
+```clojure
+(defn search
+  [search-algorithm problem start-node max-calls]
+  (do-search search-algorithm problem [start-node] #{} max-calls))
+```
+
+This works, but it requires this new function, and the lack of a sensible name
+for it isn't a great sign. It also doesn't address the third concern above, as
+`do-search` will still end up destructuring and passing `search-algorithm` and
+`problem` around and around.
+
+An alternative is to use the `loop`-`recur` construct. This will address all
+three of the concerns above, with the added benefit that it won't overflow the
+stack if we end up with a zillion recursive calls in our search process.
+
+So let's rewrite our `search` function to use `loop`-`recur`. While we're at
+it, let's also replace that nested `if` with a `cond`.
+
+```klipse
+(defn search-lr
+  [{:keys [get-next-node add-children]}
+   {:keys [goal? make-children]}
+   start-node max-calls]
+  (loop [frontier [start-node]
+         visited #{}
+         num-calls 0]
+    (println frontier)
+    (let [next-node (get-next-node frontier)]
+      (cond
+        (goal? next-node) next-node
+        (= num-calls max-calls) :max-calls-reached
+        :else
+          (recur
+            (add-children
+              (remove-previous-states (make-children next-node) frontier visited)
+              (rest frontier))
+            (conj visited next-node)
+            (inc num-calls))))))
+```
+
+This should behave the same as the previous version (although perhaps a little
+faster), but the calling structure is cleaner and we didn't have to introduce
+a new function with a goofy name.
+
+```klipse
+(search-lr depth-first-search sample-problem [3 3] 20)
+```
+
 ## Next: Heuristic search
 
 A clear problem with both breadth-first and depth-first search is neither is
