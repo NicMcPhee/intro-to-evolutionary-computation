@@ -39,7 +39,10 @@ To add those to our code involves two changes. The first is to remove
 everything from the set of children that already exist in `open`. For now
 we'll do this by converting the collection of children to a set, and the
 `open` list to a set, and then using the built-in `clojure.set/difference`
-function to remove the duplicates.
+function to remove the duplicates.<input type="checkbox" id="cb2"/><label for="cb2"><sup class="note-marker">\*</sup></label><span>
+All this generation and re-generation of sets isn't terribly efficient, but
+we'll live with this for now.
+</span>
 
 ```klipse
 (defn remove-previous-states
@@ -183,7 +186,7 @@ here's a definition of our `sample-problem`:
 
 (defn legal-coordinate
   [x]
-  (and (>= x 0) (<= x 3)))
+  (and (>= x 0) (<= x 10)))
 
 (defn legal-state
   [position]
@@ -207,7 +210,7 @@ Now we can extract and apply the relevant functions from `sample-problem`:
 ![Microscope icon](/assets/Microscope_icon_32.png)
 Change `[0 0]` to a different position. Change `:goal?` to `:children`, and
 then play with the position argument there as well. (Remember that we limit
-child coordinates to be between 0 and 3.)
+child coordinates to be between 0 and 10.)
 {:.active-example}
 
 ### Encapsulating search algorithms
@@ -244,7 +247,7 @@ So we could simplify the previous definitions to:
 (def bfs-add-children #(concat %2 %1))
 ```
 
-The question, then, is whether it's actually _worth_ it to introduce these
+The question, then, is whether it's actually *worth* it to introduce these
 names here. Normally I'd be a big fan introducing names to improve readability
 and maintanability. Here, though, these will be inside maps that will
 themselves have descriptive names, so it's not clear that they add much, so
@@ -277,6 +280,8 @@ instead of a function name `f` we have the expression.
 ((:add-children breadth-first-search) [5 8 9] [6 3 2 0])
 ```
 
+---
+
 ## The new version of `search`
 
 Given all that, we can put together the new version of `search`. We could
@@ -297,8 +302,9 @@ allow us to extract and name the components of the maps right away in the
 declaration of the argument list. Clojure allows us to write things like:
 
 ```klipse
-(defn f [{:keys [this that]}]
-  (println "The value of :this was " this " and the value of :that was " that))
+(defn f [{:keys [this that] :as entire-map}]
+  (println "The value of :this was" this " and the value of :that was" that)
+  (println "The whole map is" entire-map))
 
 (f {:this "Hello!" :that 5})
 ```
@@ -308,4 +314,61 @@ argument (the curly braces say that) and the map will have at least two keys,
 `:this` and `:that`. Clojure will then extract the values associated with those
 keys, and then assign them to parameter names `this` and `that` (without the
 colons because they're not keywords). We can then refer to those in the body
-of the function just as if they'd been passed in as separate arguments. 
+of the function just as if they'd been passed in as separate arguments.
+
+Note also that this only extracts the keys `:this` and `:that` from the map that is
+passed in, but in no way *limits* the map to only having those keys. This
+allows us to add other elements to our maps which will then be ignored here
+since they're not needed.
+
+The `:all` is an optional keyword that allows us to provide a name for the
+whole map if we want/need that. We'll need that in `search` because we have
+to pass the entire search algorithm and problem maps back around in the
+recursive calls.
+
+We can now use destructing to extract the relevant components from our
+`search-algorithm` and `problem` arguments above:
+
+```klipse
+(defn search
+  [{:keys [get-next-node add-children] :as search-algorithm}
+   {:keys [goal? children] :as problem}
+   open-nodes closed-nodes max-calls]
+  (println open-nodes)
+  (let [next-node (get-next-node open-nodes)]
+    (if (or (goal? next-node) (zero? max-calls))
+      next-node
+      (search
+        search-algorithm
+        problem
+        (add-children
+          (remove-previous-states (children next-node) open-nodes closed-nodes)
+          (rest open-nodes))
+        (conj closed-nodes next-node)
+        (dec max-calls)))))
+```
+
+## Yay – it works!
+
+This has made our search tool far more usable. In our previous version, for
+example, depth-first search was completely unusable because we would frequently
+just end up alternating back and forth between adjacent states, drifting off
+into unproductive infinite loops. Now the fact that we avoid duplication will
+make things *much* better:
+
+```klipse
+(search depth-first-search sample-problem [[3 3]] #{} 20)
+```
+
+Our search now terminates, and the length of the `open` list never grows to
+insane lengths because we never have duplicates there. Note that depth-first
+search *would* go off into an infinite search if we didn't limit the
+coordinates. Since our depth-first implementation applies the `up` move first,
+if there weren't any bounds on our space we would simply go up forever from our
+starting point, only ever finding the goal if it happened to be right above
+our starting point.
+
+![Microscope icon](/assets/Microscope_icon_32.png)
+It's still quite easy to give it problems it can't solve, typically by moving
+the starting location a little farther away from the goal location.  
+{:.active-example}
