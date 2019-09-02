@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Cleaning up the search implementation | Your awesome title</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Cleaning up the search implementation" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Cleaning up the search implementation" />
+<meta property="og:description" content="Cleaning up the search implementation" />
+<link rel="canonical" href="http://localhost:4000/pages/03-clean-up-search-implementation.html" />
+<meta property="og:url" content="http://localhost:4000/pages/03-clean-up-search-implementation.html" />
+<meta property="og:site_name" content="Your awesome title" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-09-02T10:27:25-05:00" />
+<script type="application/ld+json">
+{"description":"Cleaning up the search implementation","@type":"BlogPosting","url":"http://localhost:4000/pages/03-clean-up-search-implementation.html","headline":"Cleaning up the search implementation","dateModified":"2019-09-02T10:27:25-05:00","datePublished":"2019-09-02T10:27:25-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/pages/03-clean-up-search-implementation.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Your awesome title" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Your awesome title</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/pages/00-intro-to-search.html">The basic ideas of search</a><a class="page-link" href="/pages/01-simple-states-in-clojure.html">Implementing simple states in Clojure</a><a class="page-link" href="/pages/02-simple-search-algorithms.html">Simple search algorithms in Clojure</a><a class="page-link" href="/pages/03-clean-up-search-implementation.html">Cleaning up the search implementation</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,300i&display=swap" rel="stylesheet">
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: [
+      "MathMenu.js",
+      "MathZoom.js",
+      "AssistiveMML.js",
+      "a11y/accessibility-menu.js"
+    ],
+    jax: ["input/TeX", "output/CommonHTML"],
+    TeX: {
+      extensions: [
+        "AMSmath.js",
+        "AMSsymbols.js",
+        "noErrors.js",
+        "noUndefined.js",
+      ]
+    }
+  });
+</script>
+
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+
+<script>
+    window.klipse_settings = {
+        selector: '.language-klipse'// css selector for the html elements you want to klipsify
+    };
+</script>
+
+<link rel="stylesheet" href="/assets/styles.css">
+
+<h1 id="cleaning-up-the-search-implementation">Cleaning up the search implementation</h1>
+
+<p>In <a href="/pages/02-simple-search-algorithms.html">the previous installment</a> we
+developed an working initial implementation of our simple search algorithms in
+Clojure. Our code can be tidied up in several ways, and the logic of the search
+algorithms can also be improved.</p>
+
+<h2 id="avoiding-duplicate-exploration">Avoiding duplicate exploration</h2>
+
+<p>The first concern is the the fact that we end up with the same state in the
+<code class="highlighter-rouge">open</code> list multiple times, which obviously isn’t great. There are in fact
+two separate issues. One is the problem of multiple copies of a node in the
+<code class="highlighter-rouge">open</code> list; this we can solve by “simply” being careful to only add new nodes
+to the <code class="highlighter-rouge">open</code> list if they’re not already there.
+<input type="checkbox" id="cb1" /><label for="cb1"><sup class="note-marker">*</sup></label><span>
+A “simple” solution would be to change <code class="highlighter-rouge">open</code> from a sequence to a Clojure
+<code class="highlighter-rouge">set</code>, which would ensure that there would be no duplicates. The problem,
+though, would be that sets are inherently not ordered sequences, and our
+current approach depends crucially on <code class="highlighter-rouge">open</code> being a sequence whose order
+represents the order in which nodes should be explored.
+</span></p>
+
+<p>The other problem is that we could explore state <script type="math/tex">s</script> at one point, and then
+later have <script type="math/tex">s</script> appear again as the child of some other state. Since we’ve
+already explored <script type="math/tex">s</script>, we don’t want to explore it again. That means we have
+to in some sense “remember” what states we’ve explored so we don’t explore a
+state twice. The standard approach to that is to also have a <code class="highlighter-rouge">closed</code> collection
+which holds all the states that we’ve already explored. Here I will use a
+Clojure set, since we don’t care about the order in which nodes were added to
+<code class="highlighter-rouge">closed</code>.</p>
+
+<p>To add those to our code involves two changes. The first is to remove
+everything from the set of children that already exist in <code class="highlighter-rouge">open</code>. For now
+we’ll do this by converting the collection of children to a set, and the
+<code class="highlighter-rouge">open</code> list to a set, and then using the built-in <code class="highlighter-rouge">clojure.set/difference</code>
+function to remove the duplicates.</p>
+
+<pre><code class="language-klipse">(defn remove-previous-states
+  [new-states open-states closed-states]
+  (clojure.set/difference
+    ; The function `set` takes a collection and returns a set with those items
+    (set new-states)
+    (clojure.set/union (set open-states) (set closed-states))))
+</code></pre>
+
+<p class="active-example"><img src="/assets/Microscope_icon_32.png" alt="Microscope icon" />
+Explore these set functions below. Note that the order of items in a set is
+somewhat arbitrary and never guaranteed.</p>
+
+<pre><code class="language-klipse">(clojure.set/union #{3 2 0} #{2 4 1 6})
+</code></pre>
+
+<pre><code class="language-klipse">(clojure.set/difference #{2 4 1 6} #{4 5 2 0})
+</code></pre>
+
+<p class="active-example">Note that the arguments to
+<code class="highlighter-rouge">remove-previous-states</code> can be any collection, and can in fact have different
+types. What we’ll get back, though, will always be a set.</p>
+
+<pre><code class="language-klipse">(remove-previous-states [5 8 9 8 7] '(3 5 7) [9 2])
+</code></pre>
+
+<p>Now that we’ve made sure that we don’t add previously seen states to
+<code class="highlighter-rouge">open-states</code>, we now need to sort out <em>closed</em> nodes. This involves
+adding Yet Another Argument (we’ll help clean that up later) for the
+<code class="highlighter-rouge">closed</code> set and add the <code class="highlighter-rouge">next-node</code> to that along the way.</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="k">defn</span><span class="w"> </span><span class="n">search</span><span class="w">
+  </span><span class="p">[</span><span class="n">get-next-node</span><span class="w"> </span><span class="n">add-children</span><span class="w"> </span><span class="n">goal?</span><span class="w"> </span><span class="nb">children</span><span class="w"> </span><span class="n">open-nodes</span><span class="w"> </span><span class="n">closed-nodes</span><span class="p">]</span><span class="w">
+  </span><span class="p">(</span><span class="nb">println</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">)</span><span class="w">
+  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">[</span><span class="n">next-node</span><span class="w"> </span><span class="p">(</span><span class="nf">get-next-node</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">)]</span><span class="w">
+    </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">goal?</span><span class="w"> </span><span class="n">next-node</span><span class="p">)</span><span class="w">
+      </span><span class="n">next-node</span><span class="w">
+      </span><span class="p">(</span><span class="nf">search</span><span class="w">
+        </span><span class="n">get-next-node</span><span class="w">
+        </span><span class="n">add-children</span><span class="w">
+        </span><span class="n">goal?</span><span class="w">
+        </span><span class="nb">children</span><span class="w">
+        </span><span class="p">(</span><span class="nf">add-children</span><span class="w">
+          </span><span class="p">(</span><span class="nf">remove-previous-states</span><span class="w"> </span><span class="p">(</span><span class="nb">children</span><span class="w"> </span><span class="n">next-node</span><span class="p">)</span><span class="w"> </span><span class="n">open-nodes</span><span class="w"> </span><span class="n">closed-nodes</span><span class="p">)</span><span class="w">
+          </span><span class="n">open-nodes</span><span class="p">)</span><span class="w">
+        </span><span class="c1">; Add `next-node` to the set of `closed-nodes`</span><span class="w">
+        </span><span class="p">(</span><span class="nb">conj</span><span class="w"> </span><span class="n">closed-nodes</span><span class="w"> </span><span class="n">next-node</span><span class="p">)))))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The function <code class="highlighter-rouge">conj</code> above is a
+general mechanism to add (“conjoin”) a new element to a collection. It attempts
+to do what “makes sense” given the type of the collection, e.g., only add an
+element to a set if it’s not already present. It also has its arguments in
+what many find a counterintuitive order; this often turns out to be more
+convenient when using <code class="highlighter-rouge">conj</code> as a higher-order function.</p>
+
+<pre><code class="language-klipse">(conj #{5 8 9} 9)
+</code></pre>
+
+<p class="active-example"><img src="/assets/Microscope_icon_32.png" alt="Microscope icon" />
+Change the new element from <code class="highlighter-rouge">9</code> to <code class="highlighter-rouge">11</code>. Collections can have mixed types, so
+you could also change <code class="highlighter-rouge">9</code> to a string like <code class="highlighter-rouge">"Morris"</code> or a symbol like
+<code class="highlighter-rouge">:Minnesota</code>.</p>
+
+<p class="active-example">Also experiment with changing the collection in that call from a set to a
+vector (using square brackets like <code class="highlighter-rouge">[5 8 9]</code>) or a list (using parentheses
+and a quote to prevent it from being evaluated like a function call, like
+<code class="highlighter-rouge">'(5 8 9)</code>). <code class="highlighter-rouge">conj</code> has
+<a href="https://stackoverflow.com/a/17910712">a perhaps surprising difference in behavior</a>
+on vectors and lists.</p>
+
+<h2 id="so-many-arguments">So many arguments!</h2>
+
+<p>What we have now works, but we have an awful lot of arguments (6). Worse, they
+logically break into three groups:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">get-next-node</code> and <code class="highlighter-rouge">add-children</code> specify the behavior of the particular
+search algorithm we want <code class="highlighter-rouge">search</code> to use.</li>
+  <li><code class="highlighter-rouge">goal?</code> and <code class="highlighter-rouge">children</code> specify the features of the problem space we’re
+searching.</li>
+  <li><code class="highlighter-rouge">open-nodes</code> and <code class="highlighter-rouge">closed-nodes</code> are “bookkeeping” arguments needed by
+<code class="highlighter-rouge">search</code></li>
+</ul>
+
+<p>Unfortunately, there’s nothing in this blob of arguments that
+makes this organization clear. We’ve put related arguments together in the
+sequence, but there’s nothing that separates them.</p>
+
+<p>Clearly not good.</p>
+
+<p>If we were in an object-oriented world, a reasonable response here would be to
+create new classes that would collect together the related bits of logic in
+a named type. In Clojure, that idea is typically implemented as a <em>map</em>,
+which gives us named tags for the different functions.</p>
+
+<h3 id="encapsulating-problems">Encapsulating problems</h3>
+
+<p>As an example, we could define <code class="highlighter-rouge">sample-problem</code> as a map containing two
+fields:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nf">define</span><span class="w"> </span><span class="n">sample-problem</span><span class="w">
+  </span><span class="p">{</span><span class="no">:goal?</span><span class="w"> </span><span class="err">…</span><span class="w">
+   </span><span class="no">:children</span><span class="w"> </span><span class="err">…</span><span class="p">})</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Here we use keywords (e.g., <code class="highlighter-rouge">:goal?</code> and <code class="highlighter-rouge">:children</code>) as the <em>keys</em> in our map;
+this is very common, but not required. Pretty much any values can be used as
+keys; Clojure is just able to do lookup on keywords particularly efficiently,
+which makes them a nice choice. The values can also be pretty much
+anything, including functions, which is really useful in this case since it’s
+functions we want.</p>
+
+<p>Borrowing from <a href="/pages/02-simple-search-algorithms.html">our previous work</a>,
+here’s a definition of our <code class="highlighter-rouge">sample-problem</code>:</p>
+
+<pre><code class="language-klipse">(defn origin-goal?
+  [[x y]]
+  (and (zero? x) (zero? y)))
+
+(def up    [ 0  1])
+(def down  [ 0 -1])
+(def left  [-1  0])
+(def right [ 1  0])
+
+(def all-moves [up down left right])
+
+(defn apply-move
+  [position move]
+  (vec (map + position move)))
+
+(defn legal-coordinate
+  [x]
+  (and (&gt;= x 0) (&lt;= x 3)))
+
+(defn legal-state
+  [position]
+  (every? legal-coordinate position))
+
+(defn grid-children
+  [position]
+  (filter legal-state (map (partial apply-move position) all-moves)))
+
+(def sample-problem
+  {:goal? origin-goal?
+   :children grid-children})
+</code></pre>
+
+<p>Now we can extract and apply the relevant functions from <code class="highlighter-rouge">sample-problem</code>:</p>
+
+<pre><code class="language-klipse">((:goal? sample-problem) [0 0])
+</code></pre>
+
+<p class="active-example"><img src="/assets/Microscope_icon_32.png" alt="Microscope icon" />
+Change <code class="highlighter-rouge">[0 0]</code> to a different position. Change <code class="highlighter-rouge">:goal?</code> to <code class="highlighter-rouge">:children</code>, and
+then play with the position argument there as well. (Remember that we limit
+child coordinates to be between 0 and 3.)</p>
+
+<h3 id="encapsulating-search-algorithms">Encapsulating search algorithms</h3>
+
+<p><a href="/pages/02-simple-search-algorithms.html">Previously</a> we’d
+developed the following definitions for depth-first and breadth-first search:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">; Same for both search algorithms</span><span class="w">
+</span><span class="p">(</span><span class="k">defn</span><span class="w"> </span><span class="n">get-next-node</span><span class="w">
+  </span><span class="p">[</span><span class="n">open-nodes</span><span class="p">]</span><span class="w">
+  </span><span class="p">(</span><span class="nb">first</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">))</span><span class="w">
+
+</span><span class="p">(</span><span class="k">defn</span><span class="w"> </span><span class="n">dfs-add-children</span><span class="w">
+  </span><span class="p">[</span><span class="nb">children</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">]</span><span class="w">
+  </span><span class="p">(</span><span class="nb">concat</span><span class="w"> </span><span class="nb">children</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">))</span><span class="w">
+
+</span><span class="p">(</span><span class="k">defn</span><span class="w"> </span><span class="n">bfs-add-children</span><span class="w">
+  </span><span class="p">[</span><span class="nb">children</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">]</span><span class="w">
+  </span><span class="p">(</span><span class="nb">concat</span><span class="w"> </span><span class="n">open-nodes</span><span class="w"> </span><span class="nb">children</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can, however, take this opportunity to simplify these definitions. Note
+that <code class="highlighter-rouge">get-next-node</code> is really just <code class="highlighter-rouge">first</code>, and <code class="highlighter-rouge">dfs-add-children</code> is just
+<code class="highlighter-rouge">concat</code>. The only one of these functions that actually “does” anything is
+<code class="highlighter-rouge">bfs-add-children</code>, and all it does is reverse the order of the arguments
+before calling <code class="highlighter-rouge">concat</code>.</p>
+
+<p>So we could simplify the previous definitions to:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">get-next-node</span><span class="w"> </span><span class="nb">first</span><span class="p">)</span><span class="w">
+</span><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">dfs-add-children</span><span class="w"> </span><span class="nb">concat</span><span class="p">)</span><span class="w">
+</span><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">bfs-add-children</span><span class="w"> </span><span class="o">#</span><span class="p">(</span><span class="nb">concat</span><span class="w"> </span><span class="n">%2</span><span class="w"> </span><span class="n">%1</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The question, then, is whether it’s actually <em>worth</em> it to introduce these
+names here. Normally I’d be a big fan introducing names to improve readability
+and maintanability. Here, though, these will be inside maps that will
+themselves have descriptive names, so it’s not clear that they add much, so
+I’m going to skip those names and go straight to the maps:</p>
+
+<pre><code class="language-klipse">(def depth-first-search
+  {:get-next-node first
+   :add-children concat})
+
+(def breadth-first-search
+  {:get-next-node first
+   :add-children #(concat %2 %1)})
+</code></pre>
+
+<p class="active-example"><img src="/assets/Microscope_icon_32.png" alt="Microscope icon" />
+Experiment with both of these to make sure you understand how the maps will
+work. Swap <code class="highlighter-rouge">depth-first-search</code> and <code class="highlighter-rouge">breadth-first-search</code> and see what does
+and doesn’t change. Note also the expressions like
+<code class="highlighter-rouge">(:get-next-node depth-first-search)</code> return a function, which we can then
+call with the same syntax (i.e., <code class="highlighter-rouge">(f x)</code>) of other function calls, where
+instead of a function name <code class="highlighter-rouge">f</code> we have the expression.</p>
+
+<pre><code class="language-klipse">((:get-next-node depth-first-search) [5 8 9])
+</code></pre>
+
+<pre><code class="language-klipse">((:add-children breadth-first-search) [5 8 9] [6 3 2 0])
+</code></pre>
+
+<h2 id="the-new-version-of-search">The new version of <code class="highlighter-rouge">search</code></h2>
+
+<p>Given all that, we can put together the new version of <code class="highlighter-rouge">search</code>. We could
+receive the arguments in the “traditional” way and extract the values by
+keys as follows:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="k">defn</span><span class="w"> </span><span class="n">search</span><span class="w">
+  </span><span class="p">[</span><span class="n">search-algorithm</span><span class="w"> </span><span class="n">problem</span><span class="w"> </span><span class="n">open-nodes</span><span class="w"> </span><span class="n">closed-nodes</span><span class="p">]</span><span class="w">
+  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">[</span><span class="n">next-node</span><span class="w"> </span><span class="p">((</span><span class="no">:get-next-node</span><span class="w"> </span><span class="n">search-algorithm</span><span class="p">)</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">)]</span><span class="w">
+    </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="no">:goal?</span><span class="w"> </span><span class="n">problem</span><span class="p">)</span><span class="w"> </span><span class="n">next-node</span><span class="p">)</span><span class="w">
+      </span><span class="err">…</span><span class="w">
+      </span><span class="p">)))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>We can, however, simplify that by using Clojure’s <em>destructuring</em> tools. These
+allow us to extract and name the components of the maps right away in the
+declaration of the argument list. Clojure allows us to write things like:</p>
+
+<pre><code class="language-klipse">(defn f [{:keys [this that]}]
+  (println "The value of :this was " this " and the value of :that was " that))
+
+(f {:this "Hello!" :that 5})
+</code></pre>
+
+<p>Here <code class="highlighter-rouge">[{:keys [this that]}]</code> is saying that <code class="highlighter-rouge">f</code> will receive a map as an
+argument (the curly braces say that) and the map will have at least two keys,
+<code class="highlighter-rouge">:this</code> and <code class="highlighter-rouge">:that</code>. Clojure will then extract the values associated with those
+keys, and then assign them to parameter names <code class="highlighter-rouge">this</code> and <code class="highlighter-rouge">that</code> (without the
+colons because they’re not keywords). We can then refer to those in the body
+of the function just as if they’d been passed in as separate arguments.</p>
+
+
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Your awesome title</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Your awesome title</li><li><a class="u-email" href="mailto:your-email@example.com">your-email@example.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/jekyll"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">jekyll</span></a></li><li><a href="https://www.twitter.com/jekyllrb"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">jekyllrb</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
