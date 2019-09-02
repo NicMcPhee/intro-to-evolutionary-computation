@@ -336,16 +336,18 @@ We can now use destructing to extract the relevant components from our
    open-nodes closed-nodes max-calls]
   (println open-nodes)
   (let [next-node (get-next-node open-nodes)]
-    (if (or (goal? next-node) (zero? max-calls))
+    (if (goal? next-node)
       next-node
-      (search
-        search-algorithm
-        problem
-        (add-children
-          (remove-previous-states (children next-node) open-nodes closed-nodes)
-          (rest open-nodes))
-        (conj closed-nodes next-node)
-        (dec max-calls)))))
+      (if (zero? max-calls)
+        :max-calls-reached
+        (search
+          search-algorithm
+          problem
+          (add-children
+            (remove-previous-states (children next-node) open-nodes closed-nodes)
+            (rest open-nodes))
+          (conj closed-nodes next-node)
+          (dec max-calls))))))
 ```
 
 ## Yay – it works!
@@ -370,5 +372,18 @@ our starting point.
 
 ![Microscope icon](/assets/Microscope_icon_32.png)
 It's still quite easy to give it problems it can't solve, typically by moving
-the starting location a little farther away from the goal location.  
+the starting location a little farther away from the goal location. How
+differently to breadth-first and depth-first search respond to different
+starting points?
 {:.active-example}
+
+## Next: Heuristic search
+
+A clear problem with both breadth-first and depth-first search is neither is
+"guided" or "directed" – they just blindly wander around until they (hopefully)
+stumble across the solution. In many cases, however, we can some sense that one
+search state is better than another because a state is in some measurable way
+closer to the goal, or has some other desirable property (e.g., have more
+pieces or points than your opponent in a game). In the next installment we'll
+look at *heuristic* search, which allows us to guide our search towards our
+goal, which will substantially improve things.
