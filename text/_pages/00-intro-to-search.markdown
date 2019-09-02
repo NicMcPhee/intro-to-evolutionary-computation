@@ -4,7 +4,19 @@ title:  "The basic ideas of search"
 categories: search
 ---
 
-# A simple example of search
+# {{ page.title }}
+
+## A simple example of search
+
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [{{ page.title }}](#-pagetitle-)
+	- [A simple example of search](#a-simple-example-of-search)
+	- [The size of search trees](#the-size-of-search-trees)
+	- [Repetition and search trees](#repetition-and-search-trees)
+	- [Next: Implementing these ideas in Clojure](#next-implementing-these-ideas-in-clojure)
+
+<!-- /TOC -->
 
 Let us first consider an _extremely_ (& deliberately) simple example. Imagine
 a little robot, Pat, on an integer grid at position (10, 10) who needs to get to
@@ -56,7 +68,7 @@ four options, one of which (`left`) leads to (9, 9); to keep the size of the
 diagram manageable we've omitted the other three states. From (9, 9) there are
 again four options, as illustrated in the figure.
 
-# The size of search trees
+## The size of search trees
 
 In theory Pat could find a path to (0, 0) by simply expanding this tree until
 they find the desired node. Even in this very simple example, however, this
@@ -79,7 +91,7 @@ of go [are much larger still](https://senseis.xmp.net/?NumberOfPossibleGoGames):
 
 Yikes!
 
-# Repetition and search trees
+## Repetition and search trees
 
 The search tree above also illustrates an annoying property of most search
 trees: there is often repetition, and frequently lots of it. In our diagram
@@ -100,7 +112,7 @@ want to further explore that state. If we later find a "cheaper" way to reach
 that state, then our interest in it might increase and we might
 want to (re)explore the paths from that state.
 
-# Next: Implementing these ideas in Clojure
+## Next: Implementing these ideas in Clojure
 
 In [the next installment]({% link _pages/01-simple-states-in-clojure.markdown %}) we'll
 look at how to represent and manipulate these
