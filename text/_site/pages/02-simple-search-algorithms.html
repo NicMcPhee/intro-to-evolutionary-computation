@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Simple search algorithms in Clojure | Your awesome title</title>
+<meta name="generator" content="Jekyll v3.8.6" />
+<meta property="og:title" content="Simple search algorithms in Clojure" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Simple search algorithms in Clojure" />
+<meta property="og:description" content="Simple search algorithms in Clojure" />
+<link rel="canonical" href="http://localhost:4000/pages/02-simple-search-algorithms.html" />
+<meta property="og:url" content="http://localhost:4000/pages/02-simple-search-algorithms.html" />
+<meta property="og:site_name" content="Your awesome title" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-09-02T10:27:25-05:00" />
+<script type="application/ld+json">
+{"description":"Simple search algorithms in Clojure","@type":"BlogPosting","url":"http://localhost:4000/pages/02-simple-search-algorithms.html","headline":"Simple search algorithms in Clojure","dateModified":"2019-09-02T10:27:25-05:00","datePublished":"2019-09-02T10:27:25-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/pages/02-simple-search-algorithms.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Your awesome title" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Your awesome title</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/pages/00-intro-to-search.html">The basic ideas of search</a><a class="page-link" href="/pages/01-simple-states-in-clojure.html">Implementing simple states in Clojure</a><a class="page-link" href="/pages/02-simple-search-algorithms.html">Simple search algorithms in Clojure</a><a class="page-link" href="/pages/03-clean-up-search-implementation.html">Cleaning up the search implementation</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <link href="https://fonts.googleapis.com/css?family=Raleway:300,300i&display=swap" rel="stylesheet">
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: [
+      "MathMenu.js",
+      "MathZoom.js",
+      "AssistiveMML.js",
+      "a11y/accessibility-menu.js"
+    ],
+    jax: ["input/TeX", "output/CommonHTML"],
+    TeX: {
+      extensions: [
+        "AMSmath.js",
+        "AMSsymbols.js",
+        "noErrors.js",
+        "noUndefined.js",
+      ]
+    }
+  });
+</script>
+
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+
+<script>
+    window.klipse_settings = {
+        selector: '.language-klipse'// css selector for the html elements you want to klipsify
+    };
+</script>
+
+<link rel="stylesheet" href="/assets/styles.css">
+
+<h1 id="simple-search-algorithms-in-clojure">Simple search algorithms in Clojure</h1>
+
+<p>In <a href="/pages/01-simple-states-in-clojure.html">the previous installment</a> we
+looked at how we might represent (very) simple kinds of search states
+in Clojure. In this installment we’ll look
+at how to actually search the “tree” implied by these states using two
+important (if simple) search algorithms: Breadth-first and depth-first search.</p>
+
+<h2 id="a-general-approach-to-search">A general approach to search</h2>
+
+<p>A number of search algorithms, including both
+breadth-first and depth-first search, have a shared structure. They have
+an <em>open</em> collection of nodes that still need to be explored, which
+initially just contains the root node of the search tree (i.e., the
+starting point). Then the search process involves selecting a node <code class="highlighter-rouge">next-node</code>
+from <code class="highlighter-rouge">open</code>. We then check to see if <code class="highlighter-rouge">next-node</code> is a goal state; if it is
+then we’re done! If not, then we compute the <em>child</em> nodes and add them
+back into <code class="highlighter-rouge">open</code> to be (possibly) explored in future iterations.</p>
+
+<p>All that might look roughly like this in Clojure:
+<input type="checkbox" id="cb1" /><label for="cb1"><sup class="note-marker">*</sup></label><span>
+There’s actually a problem with this approach. Since we might in realistic
+settings search <em>many</em> nodes (millions), this recursive solution could run
+out of memory in Clojure. The problem here isn’t the recursion, because a
+common run-time optimization called <em>tail recursion</em> would totally fix the
+problem by having each recursive call happen in the same stack frame.
+Unfortunately, the Java Virtual Machine (JVM) doesn’t support tail
+recursion, so Clojure (which was designed to run on the JVM) also doesn’t
+support tail recursion. (Scheme and Racket both do.) This means that if we
+wanted this to be able to search many, many nodes, we would need to use
+Clojure’s <code class="highlighter-rouge">loop-recur</code> construct, which allows us to write recursions in a
+way that allows them to be converted to essentially <code class="highlighter-rouge">while</code> loops which won’t
+run out of memory. We might return to this later.
+</span></p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="k">defn</span><span class="w"> </span><span class="n">search</span><span class="w">
+  </span><span class="p">[</span><span class="n">open-nodes</span><span class="p">]</span><span class="w">
+  </span><span class="p">(</span><span class="k">let</span><span class="w"> </span><span class="p">[</span><span class="n">next-node</span><span class="w"> </span><span class="p">(</span><span class="nf">get-next-node</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">)]</span><span class="w">
+    </span><span class="p">(</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nf">goal?</span><span class="w"> </span><span class="n">next-node</span><span class="p">)</span><span class="w">
+      </span><span class="n">next-node</span><span class="w">
+      </span><span class="p">(</span><span class="nf">search</span><span class="w">
+        </span><span class="p">(</span><span class="nf">add-children</span><span class="w">
+          </span><span class="p">(</span><span class="nb">children</span><span class="w"> </span><span class="n">next-node</span><span class="p">)</span><span class="w">
+          </span><span class="p">(</span><span class="nb">remove</span><span class="w"> </span><span class="o">#</span><span class="p">(</span><span class="nb">=</span><span class="w"> </span><span class="n">%</span><span class="w"> </span><span class="n">next-node</span><span class="p">)</span><span class="w"> </span><span class="n">open-nodes</span><span class="p">))))))</span><span class="w">
+</span></code></pre></div></div>
+
+<p>This assumes the existence of several functions, some of which are problem
+dependent, and some of which effectively define the search algorithm.</p>
+
+<p>We’ll start with the two that define the behavior of the search algorithm,
+and don’t depend on the details of the problem:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">get-next-node</code>, which determines which, of the possibly many nodes in
+<code class="highlighter-rouge">open-nodes</code> is the node we’re going to explore next.</li>
+  <li><code class="highlighter-rouge">add-children</code>, which determines how we are going to add the child nodes
+into <code class="highlighter-rouge">open</code> before recursing back and continuing the search.</li>
+</ul>
+
+<p>The various search algorithms then differ largely on a single questions: How do
+we decide which node to remove from <code class="highlighter-rouge">open</code> (i.e., <code class="highlighter-rouge">get-next-node</code>) and how to
+put the new children into <code class="highlighter-rouge">open</code> (i.e., <code class="highlighter-rouge">add-children</code>). It turns out that this
+is related to the question of which type of collection we use
+for <code class="highlighter-rouge">open</code>, which could be a sequence, or a set, or any of a number
+of other data structures. It’s quite straightforward, for example, to
+use a sequence for <code class="highlighter-rouge">open</code> and just always take the first node in the
+list as <code class="highlighter-rouge">next-node</code>. If we do that, it turns out that the big question
+becomes how to add the <code class="highlighter-rouge">children</code> into <code class="highlighter-rouge">open</code>?</p>
+
+<p>Given that <code class="highlighter-rouge">open</code> is a sequence (an ordered list), there’s essentially two
+simple ways to add the children: Append them to the front <code class="highlighter-rouge">open</code>, or append
+them to the end of <code class="highlighter-rouge">open</code>. It turns out that these two opens give us
+depth-first search (append to the front) and breadth-first search (append to
+the end).</p>
+
+<h2 id="depth-first-search">Depth-first search</h2>
+
+<p>If we append children to the front of <code class="highlighter-rouge">open</code> we get depth-first search, where
+we explore the children (and all their descendants) of a node before
+exploring any of the siblings and their descendants. Consider, for example, the
+numbering on this graph, which shows the order in which the nodes would be
+explored using depth-first search:</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Depth-first-tree.svg" alt="Depth-first numbering of tree nodes." /></p>
+
+<p>Here the <code class="highlighter-rouge">open</code> list changes as follows:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w">       </span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">              </span><span class="c1">; initially just the start node</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="n">,</span><span class="w"> </span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="p">]</span><span class="w">        </span><span class="c1">; the children of node 1</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="n">,</span><span class="w"> </span><span class="mi">6</span><span class="n">,</span><span class="w"> </span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="p">]</span><span class="w">     </span><span class="c1">; added the children of 2 to the *front*</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span><span class="n">,</span><span class="w"> </span><span class="mi">5</span><span class="n">,</span><span class="w"> </span><span class="mi">6</span><span class="n">,</span><span class="w"> </span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="p">]</span><span class="w">  </span><span class="c1">; add the children of 3</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">5</span><span class="n">,</span><span class="w"> </span><span class="mi">6</span><span class="n">,</span><span class="w"> </span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="p">]</span><span class="w">     </span><span class="c1">; 4 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="n">,</span><span class="w"> </span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="p">]</span><span class="w">        </span><span class="c1">; 5 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="p">]</span><span class="w">           </span><span class="c1">; 6 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="w">              </span><span class="c1">; 8 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">9</span><span class="n">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w">          </span><span class="c1">; the children of 8</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="n">,</span><span class="w"> </span><span class="mi">11</span><span class="n">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w">     </span><span class="c1">; add the children of 9</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">11</span><span class="n">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w">         </span><span class="c1">; 10 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="w">             </span><span class="c1">; 11 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w">               </span><span class="c1">; 12 has no children</span><span class="w">
+    </span><span class="c1">; we've explored the entire tree!</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="breadth-first-search">Breadth-first search</h2>
+
+<p>If we append children to the end of <code class="highlighter-rouge">open</code> we get breadth-first search, where
+we explore the siblings of a node before moving down to the children.
+Consider, for example, the
+numbering on this graph, which shows the order in which the nodes would be
+explored using depth-first search:</p>
+
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Breadth-first-tree.svg" alt="Breadth-first numbering of tree nodes." /></p>
+
+<p>Here the <code class="highlighter-rouge">open</code> list changes as follows:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w">       </span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">                </span><span class="c1">; initially just the start node</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="n">,</span><span class="w"> </span><span class="mi">3</span><span class="n">,</span><span class="w"> </span><span class="mi">4</span><span class="p">]</span><span class="w">          </span><span class="c1">; the children of node 1</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="n">,</span><span class="w"> </span><span class="mi">4</span><span class="n">,</span><span class="w"> </span><span class="mi">5</span><span class="n">,</span><span class="w"> </span><span class="mi">6</span><span class="p">]</span><span class="w">       </span><span class="c1">; added the children of 2 to the *end*</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">4</span><span class="n">,</span><span class="w"> </span><span class="mi">5</span><span class="n">,</span><span class="w"> </span><span class="mi">6</span><span class="p">]</span><span class="w">          </span><span class="c1">; 3 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">5</span><span class="n">,</span><span class="w"> </span><span class="mi">6</span><span class="n">,</span><span class="w"> </span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="p">]</span><span class="w">       </span><span class="c1">; add the children of 4</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="n">,</span><span class="w"> </span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="n">,</span><span class="w"> </span><span class="mi">9</span><span class="n">,</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w">   </span><span class="c1">; add the children of 5</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">7</span><span class="n">,</span><span class="w"> </span><span class="mi">8</span><span class="n">,</span><span class="w"> </span><span class="mi">9</span><span class="n">,</span><span class="w"> </span><span class="mi">10</span><span class="p">]</span><span class="w">      </span><span class="c1">; 6 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">8</span><span class="n">,</span><span class="w"> </span><span class="mi">9</span><span class="n">,</span><span class="w"> </span><span class="mi">10</span><span class="n">,</span><span class="w"> </span><span class="mi">11</span><span class="n">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w"> </span><span class="c1">; add the children of 7</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">9</span><span class="n">,</span><span class="w"> </span><span class="mi">10</span><span class="n">,</span><span class="w"> </span><span class="mi">11</span><span class="n">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w">    </span><span class="c1">; 8 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="n">,</span><span class="w"> </span><span class="mi">11</span><span class="n">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w">       </span><span class="c1">; 9 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">11</span><span class="n">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span><span class="w">           </span><span class="c1">; 10 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="w">               </span><span class="c1">; 11 has no children</span><span class="w">
+    </span><span class="nb">-&gt;</span><span class="w"> </span><span class="p">[]</span><span class="w">                 </span><span class="c1">; 12 has no children</span><span class="w">
+    </span><span class="c1">; we've explored the entire tree!</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="actually-implementing-search">Actually implementing search</h2>
+
+<p>This means we can easily implement <code class="highlighter-rouge">get-next-node</code> and <code class="highlighter-rouge">add-children</code> for
+depth- and breadth-first search. They both
+just use <code class="highlighter-rouge">first</code> to get the first item from <code class="highlighter-rouge">open</code>:</p>
+
+<pre><code class="language-klipse">(defn get-next-node
+  [open-nodes]
+  (first open-nodes))
+</code></pre>
+
+<p>Where they differ is in <code class="highlighter-rouge">add-children</code>. In both cases we can use the <code class="highlighter-rouge">concat</code>
+function to join together the lists of nodes, and its just a matter of who
+goes first and who goes last.</p>
+
+<pre><code class="language-klipse">(defn dfs-add-children
+  [children open-nodes]
+  (concat children open-nodes))
+
+(defn bfs-add-children
+  [children open-nodes]
+  (concat open-nodes children))
+</code></pre>
+
+<p>We’re almost there, but we need the functions <code class="highlighter-rouge">goal?</code> and <code class="highlighter-rouge">children</code> for at
+least a test problem to try things out.
+Using <a href="/pages/01-simple-states-in-clojure.html">the state work for our simple example from before</a>
+we can define <code class="highlighter-rouge">goal?</code> and <code class="highlighter-rouge">children</code>. The one change we’ll make to what was
+done before is we’re going to limit ourselves so that both <code class="highlighter-rouge">x</code> and <code class="highlighter-rouge">y</code> are
+between 0 and 3, inclusive on both ends. So we’ll modify <code class="highlighter-rouge">all-moves</code> to
+filter out any states that violate those constraints.</p>
+
+<pre><code class="language-klipse">(defn goal?
+  [[x y]]
+  (and (zero? x) (zero? y)))
+
+(def up    [ 0  1])
+(def down  [ 0 -1])
+(def left  [-1  0])
+(def right [ 1  0])
+
+(def all-moves [up down left right])
+
+(defn apply-move
+  [position move]
+  (vec (map + position move)))
+
+(defn legal-coordinate
+  [x]
+  (and (&gt;= x 0) (&lt;= x 3)))
+
+(defn legal-state
+  [position]
+  (every? legal-coordinate position))
+
+(defn children
+  [position]
+  (filter legal-state (map (partial apply-move position) all-moves)))
+</code></pre>
+
+<p>Now we have all these pieces, there’s the question of how they are made
+available to the <code class="highlighter-rouge">search</code> function so that we can specify “at runtime” things
+like, for example, the details of the problem being solved, and which search
+algorithm we’re actually using. The typical
+approach in functional programming is to take advantage of the fact that we
+can pass functions in as arguments. So we’ll pass in</p>
+
+<ul>
+  <li><code class="highlighter-rouge">get-next-node</code></li>
+  <li><code class="highlighter-rouge">add-children</code></li>
+  <li><code class="highlighter-rouge">goal?</code></li>
+  <li><code class="highlighter-rouge">children</code></li>
+</ul>
+
+<p>as arguments; in the current setup we also have to pass them
+through in the recursive calls as well. So we can see what nodes are being
+explored, I’ve added a <code class="highlighter-rouge">println</code> that prints each value of <code class="highlighter-rouge">open-nodes</code> as
+the search progresses.</p>
+
+<pre><code class="language-klipse">(defn search
+  [get-next-node add-children goal? children open-nodes]
+  (println open-nodes)
+  (let [next-node (get-next-node open-nodes)]
+    (if (goal? next-node)
+      next-node
+      (search
+        get-next-node
+        add-children
+        goal?
+        children
+        (add-children
+          (children next-node)
+          (remove #(= % next-node) open-nodes))))))
+</code></pre>
+
+<p>Now let’s see how it works! We can start with bread-first search:</p>
+
+<pre><code class="language-klipse">(search get-next-node bfs-add-children goal? children [[1 1]])
+</code></pre>
+
+<p>Huzzah!</p>
+
+<p class="active-example"><img src="/assets/Microscope_icon_32.png" alt="Microscope icon" /> Feel free to
+play around some, but very very careful not to have the start position be
+very far from <code class="highlighter-rouge">[0 0]</code>. Even “short” distances like <code class="highlighter-rouge">[3 3]</code> quickly generate
+<em>many</em> nodes. In our very simple example problem, for example, each state has
+four child states, which means the number of states at level <script type="math/tex">n+1</script> will be
+4 times the number of states at level <script type="math/tex">n</script>, so the total number of nodes in
+<script type="math/tex">n</script> levels is <script type="math/tex">O(n^4)</script>.</p>
+
+<p class="active-example">Also, definitely <em>don’t</em> try to replace breadth-first search with
+depth-first search (i.e., replace <code class="highlighter-rouge">bfs-add-children</code> with
+<code class="highlighter-rouge">dfs-add-children</code>) – you’ll end up with an infinite loop because you’ll
+go from <code class="highlighter-rouge">[1 1]</code> to <code class="highlighter-rouge">[1 2]</code> to <code class="highlighter-rouge">[1 3]</code> to <code class="highlighter-rouge">[1 4]</code>, etc. That will never find
+the solution, and you’ll lock up your browser tab or window completely.
+We’ll fix that problem down the road.</p>
+
+<p>So this works, but there are issues, both in the structure of the code and in
+the logic of the search itself. if you look at the output above, for example,
+you’ll notice that we end up “repeating ourselves” rather a lot. There are,
+for example, numerous instances of <code class="highlighter-rouge">[1 1]</code> in our output, with as many as
+four copies of <code class="highlighter-rouge">[1 1]</code> in <code class="highlighter-rouge">open-states</code> a couple of times.</p>
+
+<p>In <a href="/pages/03-clean-up-search-implementation.html">the next installment</a>
+we’ll clean some of that up.</p>
+
+
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin/js/klipse_plugin.js"></script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Your awesome title</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Your awesome title</li><li><a class="u-email" href="mailto:your-email@example.com">your-email@example.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/jekyll"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">jekyll</span></a></li><li><a href="https://www.twitter.com/jekyllrb"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">jekyllrb</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
