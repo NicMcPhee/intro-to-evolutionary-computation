@@ -15,7 +15,7 @@ categories: search clojure
 
 <!-- /TOC -->
 
-In [the previous installment]({% link _pages/00-intro-to-search.markdown %}) we
+In [the previous installment]({{ site.baseurl }}{% link _pages/00-intro-to-search.markdown %}) we
 looked at a (very) simple example of search. In this installment we'll look
 at how to implement that in Clojure, and some of the most important (if
 quite basic) search algorithms: Breadth-first and depth-first search.
@@ -28,7 +28,7 @@ that a comma character (`,`) is considered whitespace in Clojure, which means
 that we can write this as either `[x y]` or `[x, y]` – Clojure will read
 them as the same thing.
 
-![Microscope icon](/assets/Microscope_icon_32.png) We can see this treatment of `,` by actually evaluating expressions with
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }}) We can see this treatment of `,` by actually evaluating expressions with
 and without commas and seeing that we get the same results. Play with the
 live example below!
 {:.active-example}
@@ -54,7 +54,7 @@ later.
 (def all-moves [up down left right])
 ```
 
-![Microscope icon](/assets/Microscope_icon_32.png) Now we can use
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }}) Now we can use
 [the Clojure function `map`](https://clojuredocs.org/clojure.core/map) to
 "apply" a move to any `[x y]` pair. Try it out below. Change `up` to any of
 the other directions, and try changing `[10 10]` to other initial positions.
@@ -85,7 +85,7 @@ it, generating the four resulting _child_ states.
   (map (partial apply-move position) all-moves))
 ```
 
-![Microscope icon](/assets/Microscope_icon_32.png) Explore applying
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }}) Explore applying
 `generate-child-states` to various initial positions to make sure you
 understand what it's doing and how it works. You might want to look up
 [the Clojure function `partial`](https://clojuredocs.org/clojure.core/partial)
@@ -99,5 +99,5 @@ and make sure you understand what it's doing here.
 ## Next: Breadth-first and depth-first search
 
 Now that we have the code in place to essentially generate a "tree" of states,
-in [the next installment]({% link _pages/02-simple-search-algorithms.markdown %}) we'll look at two important (but simple) search
+in [the next installment]({{ site.baseurl }}{% link _pages/02-simple-search-algorithms.markdown %}) we'll look at two important (but simple) search
 algorithms: breadth-first and depth-first search.

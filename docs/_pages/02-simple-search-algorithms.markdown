@@ -16,7 +16,7 @@ categories: search clojure
 
 <!-- /TOC -->
 
-In [the previous installment]({% link _pages/01-simple-states-in-clojure.markdown %}) we
+In [the previous installment]({{ site.baseurl }}{% link _pages/01-simple-states-in-clojure.markdown %}) we
 looked at how we might represent (very) simple kinds of search states
 in Clojure. In this installment we'll look
 at how to actually search the "tree" implied by these states using two
@@ -263,7 +263,7 @@ Now let's see how it works! We can start with bread-first search:
 
 Huzzah!
 
-![Microscope icon](/assets/Microscope_icon_32.png) Feel free to
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }}) Feel free to
 play with this. Change the starting state, e.g., replace `[1 1]` to `[3 4]`.
 Change `bfs-add-children` to `dfs-add-children`. How to the search behaviors
 change? When do you find a success, and when do you not? What are some
@@ -291,6 +291,6 @@ you'll notice that we end up "repeating ourselves" rather a lot. There are,
 for example, numerous instances of `[1 1]` in our output, with as many as
 four copies of `[1 1]` in `frontier` a couple of times.
 
-In [the next installment]({% link _pages/03-clean-up-search-implementation.markdown %})
+In [the next installment]({{ site.baseurl }}{% link _pages/03-clean-up-search-implementation.markdown %})
 we'll clean a lot of that up, generating a much more useful (but still very
 simple) search tool.

@@ -20,7 +20,7 @@ categories: search clojure
 
 <!-- /TOC -->
 
-In [the previous installment]({% link _pages/02-simple-search-algorithms.markdown %}) we
+In [the previous installment]({{ site.baseurl }}{% link _pages/02-simple-search-algorithms.markdown %}) we
 developed an working initial implementation of our simple search algorithms in
 Clojure. Our code can be tidied up in several ways, and the logic of the search
 algorithms can also be improved.
@@ -67,7 +67,7 @@ we'll live with this for now.
     (clojure.set/union (set frontier) (set visited))))
 ```
 
-![Microscope icon](/assets/Microscope_icon_32.png)
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }})
 Explore these set functions below. Note that the order of items in a set is
 somewhat arbitrary and never guaranteed.
 {:.active-example}
@@ -124,7 +124,7 @@ convenient when using `conj` as a higher-order function.
 (conj #{5 8 9} 9)
 ```
 
-![Microscope icon](/assets/Microscope_icon_32.png)
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }})
 Change the new element from `9` to `11`. Collections can have mixed types, so
 you could also change `9` to a string like `"Morris"` or a symbol like
 `:Minnesota`.
@@ -221,7 +221,7 @@ Now we can extract and apply the relevant functions from `sample-problem`:
 ((:goal? sample-problem) [0 0])
 ```
 
-![Microscope icon](/assets/Microscope_icon_32.png)
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }})
 Change `[0 0]` to a different position. Change `:goal?` to `:make-children`, and
 then play with the position argument there as well. (Remember that we limit
 child coordinates to be between 0 and 10.)
@@ -277,7 +277,7 @@ I'm going to skip those names and go straight to the maps:
    :add-children #(concat %2 %1)})
 ```
 
-![Microscope icon](/assets/Microscope_icon_32.png)
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }})
 Experiment with both of these to make sure you understand how the maps will
 work. Swap `depth-first-search` and `breadth-first-search` and see what does
 and doesn't change. Note also the expressions like
@@ -384,7 +384,7 @@ if there weren't any bounds on our space we would simply go up forever from our
 starting point, only ever finding the goal if it happened to be right above
 our starting point.
 
-![Microscope icon](/assets/Microscope_icon_32.png)
+![Microscope icon]({{ 'assets/Microscope_icon_32.png' | relative_url }})
 It's still quite easy to give it problems it can't solve in a reasonable
 amount of time, typically by moving
 the starting location a little farther away from the goal location. How
