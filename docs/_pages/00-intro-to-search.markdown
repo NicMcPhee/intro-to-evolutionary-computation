@@ -22,7 +22,7 @@ Let us first consider an _extremely_ (& deliberately) simple example. Imagine
 a little robot, Pat, on an integer grid at position (10, 10) who needs to get to
 (0, 0).
 
-![Integer grid with robot at (10, 10) and goal at (0, 0).](/assets/simple_search_grid.svg){:width="75%"}
+![Integer grid with robot at (10, 10) and goal at (0, 0).]({{ 'assets/simple_search_grid.svg' | relative_url }}){:width="75%"}
 
 Our friend Pat can only go left-right and up-down. They can't cut across
 diagonals – imagine it's a city street map and they can't wander through
@@ -54,7 +54,7 @@ from the _parent_ state.
 The diagram below illustrates Pat starting at (10, 10) and exploring a few
 paths:
 
-![A subset of the first few levels of a search tree.](/assets/simple_search_tree.svg)
+![A subset of the first few levels of a search tree.]({{ '/assets/simple_search_tree.svg' | relative_url }})
 
 At the first step, Pat has four options:
 
