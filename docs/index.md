@@ -4,3 +4,15 @@
 
 layout: home
 ---
+
+This is a collection of posts that provide an introduction to some of the
+basic ideas of the role of search in artificial intelligence and machine
+learning, ultimately leading to an introduction to evolutionary computation
+as a specific type of search tool which can be used in artificial intelligence
+and machine learning.
+
+<ol>
+{% for page in site.pages %}
+  <li><a href="{{ site.baseurl }}{{ page.url }}">{{ page.title }}</a></li>
+{% endfor %}
+</ol>
