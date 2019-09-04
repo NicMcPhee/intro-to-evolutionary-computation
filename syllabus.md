@@ -1,15 +1,14 @@
 
 
-CSci 4553: Evolutionary Computation and Artificial Intelligence
-==========================================================
+# CSci 4553: Evolutionary Computation and Artificial Intelligence
 
-Fall 2019, MWF, 2:15-3:20pm, Sci 2185
--------------------------------------------
-University of Minnesota, Morris
--------------------------------
+#### Fall 2019, MWF, 2:15-3:20pm, Sci 2185
 
-Nic McPhee, mcphee@morris.umn.edu
----------------------------------
+#### University of Minnesota, Morris
+
+#### Nic McPhee, mcphee@morris.umn.edu
+
+---
 
 Welcome to *Evolutionary Computation and Artificial Intelligence* (CSci
 4553). This is a 4 credit course which meets MWF, 2:15-3:20pm in Sci 2185.
@@ -20,8 +19,7 @@ hands-on experience (including a non-trivial amount of programming,
 perhaps in languages you’re not terribly familiar with). There will also
 be some basic statistical analysis and writing. Be prepared.
 
-Course description
-==================
+## Course description
 
 The catalog description:
 
@@ -108,8 +106,7 @@ time and circumstances allow include:
     remarkable phenomena in a computer system.
 -   Things the class is interested in :-)
 
-Course goals and learning objectives
-====================================
+## Course goals and learning objectives
 
 Goals
 
@@ -133,8 +130,7 @@ Goals
 -   Ability to read, understand, and summarize in both oral and written
     form the content of research papers in the field
 
-Texts and other materials
-=========================
+## Texts and other materials
 
 This course has 3 rather unusual texts, all of which we will use and so
 you should consider “required”. All are available in print form *and*
@@ -156,22 +152,64 @@ time to come.
 
 We’ll also read or watch other pieces on-line at as appropriate.
 
-Course calendar
-===============
+## Course calendar
 
 See the course Canvas site for the calendar of activities and assignments outline of the course.
 
-Course work and grading
-=======================
+---
+
+## Office hours and contact info
+
+### Nic's Fall, 2019, office hours
+
+My office hours for Fall, 2015, are:
+
+-   Monday, 3:30-5pm
+-   Tuesday, 1-2pm
+-   Friday, 9-10am
+
+I\'ll typically start my office hours in my office (Sci 1315), but I may
+well move to the Computer Science labs (Sci 2610, 2630, and 2650) if, for example, a group has a question about a
+project they\'re working on.
+If I leave the office during office hours I\'ll try to leave a note on
+my door telling you where I am, but you should always feel free to check
+the labs if you\'re looking for me.
+
+Those times almost certainly won\'t work for everyone. You\'re always
+welcome to just drop by (see my [complete
+schedule](http://www.google.com/calendar/hosted/morris.umn.edu/embed?src=mcphee%40morris.umn.edu&ctz=America/Chicago&mode=WEEK)),
+and I\'m happy to make appointments anytime I\'m free.
+
+If these times work very badly for you (e.g., you have class conflicts
+all of these hours) then please let me know. If it turns out that a lot
+of folks have major conflicts then I\'ll want to reconsider my choices.
+
+### Nic's contact info
+
+Email (mcphee@…) is my preferred method of contact, but be warned that I get a
+*lot* of e-mail and bits get dropped now and then. Phone (office: 320-589-6320)
+or a text is often better if it\'s critical or you need immediate feedback.
+
+My office is Sci 1315, downstairs at the east end of the Science office wing.
+
+I use [the U\'s Google
+calendar](http://www.google.com/calendar/hosted/morris.umn.edu/embed?src=mcphee%40morris.umn.edu&ctz=America/Chicago&mode=WEEK)
+to manage my calendar. Google may be the Evil Empire of the next decade,
+but they make a fine on-line calendar tool. If you\'re using Google
+calendar, feel free to use that to invite me to events/appointments.
+
+---
+
+## Course work and grading
 
 This course will be primarily organized around a set of projects which
 will in turn generate the gradable products. Some of these will be code,
 some of these will be writing assignments, and some will be
 presentations. The key components will be:
 
--   Readings and discussion (15%)
--   Small writing assignment (15%)
+-   Readings and discussion (in-class & on-line) (15%)
 -   Designing, implementing, and running EC/AI experiments (45%)
+-   Literature review and presentation/discussion (15%)
 -   Final project (25%)
 
 These are roughly weighted according to the amount of time spent on
@@ -191,86 +229,54 @@ The primary products and factors used in grading will be:
 -   Participation (which can include in-class discussion and
     out-of-class tools like forums)
 
-Grades will be entered on the course Canvas site and can be checked
-there throughout the semester. If you have any questions or concerns,
-please bring them up right away when it’s much easier to address them.
+Grades will be entered on the [course Canvas
+site](https://canvas.umn.edu) and can be
+checked there throughout the semester. If you have any questions or
+concerns, please bring them up right away when it\'s much easier to
+address them.
 
-------------------------------------------------------------------------
+**Late work** will receive a penalty of 10% for every day that it is late. This
+can be overwritten in case of illness and other unavoidable delays, but you'll
+need to contact me promptly to address such cases.
 
-Stopping by for a chat, AKA "office hours"
-==========================================
+### Grading standards (definition of grades)
 
-I am typically in my office, Sci 1315, or in the CSci labs (Sci 2610,
-2630, and 2650) during the day, and you're always more than welcome to
-come track me down, or e-mail me (mcphee@morris.umn.edu) or call me
-(320-589-6320) to make an appointment.
+[According to University of Minnesota policy](https://policy.umn.edu/education/gradingtranscripts):
 
-Also, I use [the U's Google
-Calendar](http://www.google.com/calendar/hosted/morris.umn.edu/embed?src=mcphee%40morris.umn.edu&ctz=America/Chicago&mode=WEEK)
-to manage my calendar and it's *totally* fine to use it to see where I
-might be, see when I'm free, or *just make an appointment*. If you add
-an appointment to my calendar (presumably in a spot when I appear free),
-I'll get an e-mail about it. If it looks like that time will work I'll
-accept the appointment; otherwise I'll mail you back suggesting an
-alternative.
+-   A: Represents achievement that significantly exceeds expectations
+    in the course.
+-   B: Represents achievement that is above the minimum expectations in
+    the  course.
+-   C: Represents achievement that meets the minimum expectations in the course.
+-   D: Represents achievement that partially meets the minimum expectations
+    in the course. Credit is earned but it may not fulfill major or program
+    requirements.
 
-My "official" office hours this semester are:
+-   S: Satisfactory (equivalent to a C- or better)
 
--   Monday, 3:30-4:30pm
--   Tuesday, 2-3pm
--   Friday, 9:30-10:30am
+-   F: Represents failure in the course and no credit is earned.
 
-How to best get in touch and my contact info
-============================================
+By default I will use the University Minnesota Letter Grade Scheme:
 
-The best way to contact me is probably e-mail (mcphee@morris.umn.edu),
-although if you really need to get my attention and I'm looking swamped
-(an all too common occurrence, I'm afraid) then your best bets are
-probably:
+*   A: 100% to 93%
+*   A-: <93% to 90%
+*   B+: <90% to 87%
+*   B: <87% to 83%
+*   B-: <83% to 80%
+*   C+: <80% to 77%
+*   C: <77% to 73%
+*   C-: <73% to 70%
+*   D+: <70% to 67%
+*   D: <67% to 60%
+*   F: <60% to 0%
 
--   Showing up at my office (Sci 1315, ).
--   Poke me via Google Hangouts (mcphee@morris.umn.edu); this is
-    particularly nice if you're in the lab and want to find out if I'm
-    around before you trek down to my office.
--   Call my office (320-589-6320).
+I will never be *less* generous than this, but I may be *more* generous
+depending on the clustering and gaps in the grades. If, for example,
+there's a dense cluster
+from 88.5% to 86% followed by a gap, I *might* extend the B+ range down to 86%.
+I make no promises that I will make such shifts, but it could happen.
 
-My extended contact info can be found at <http://facultypages.morris.umn.edu/~mcphee/contact.html>
-
-Relevant policies and support services
-======================================
-
-Grading standards (definition of grades)
-----------------------------------------
-
--   A: Represents achievement that is outstanding relative to the level
-    necessary to meet course requirements.
--   B: Represents achievement that is significantly above the level
-    necessary to meet course requirements.
--   C: Represents achievement that meets the course requirements in
-    every respect.
--   D: Represents achievement that is worthy of credit even though it
-    fails to meet fully the course requirements.
--   S: Represents achievement that is satisfactory, which is equivalent
-    to a C- or better.
--   F (or N): Represents failure (or no credit) and signifies that the
-    work was either (1) completed but at a level of achievement that is
-    not worthy of credit or (2) was not completed and there was no
-    agreement between the instructor and the student that the student
-    would be awarded an I (see also I).
--   I (Incomplete): Assigned at the discretion of the instructor when,
-    due to extraordinary circumstances, e.g., hospitalization, a student
-    who is otherwise doing well in the course is prevented from
-    completing the work of the course on time. Requires a written
-    agreement between instructor and student.
-
-Academic dishonesty
--------------------
-
-Academic dishonesty in any portion of the academic work for a course
-shall be grounds for awarding a grade of F or N for the entire course.
-
-University Senate academic workload policy
-------------------------------------------
+### Senate academic workload policy
 
 For undergraduate courses, one credit is defined as equivalent to an
 average of three hours of learning effort per week (over a full
@@ -280,98 +286,40 @@ credit course that meets for four hours a week should expect to spend an
 additional eight hours a week on course work outside the classroom in
 order to get a C in that course.
 
+
+
+
 ------------------------------------------------------------------------
 
-Academic Integrity
-------------------
+## Relevant policies and support services
 
-Academic integrity is essential to a positive teaching and learning
-environment. All students enrolled in University courses are expected to
-complete coursework responsibilities with fairness and honesty. Failure
-to do so by seeking unfair advantage over others or misrepresenting
-someone else's work as your own, can result in disciplinary action. [The
-University Student Conduct
-Code](http://regents.umn.edu/sites/regents.umn.edu/files/policies/Student_Conduct_Code.pdf)
-defines scholastic dishonesty as follows:
+Below are some of the most relevant policies and services.
+There are many other potentially relevant university policies
+and services, so definitely ask if you have questions or concerns.
 
-> Scholastic dishonesty means plagiarism; cheating on assignments or
-> examinations; engaging in unauthorized collaboration on academic work;
-> taking, acquiring, or using test materials without faculty permission;
-> submitting false or incomplete records of academic achievement; acting
-> alone or in cooperation with another to falsify records or to obtain
-> dishonestly grades, honors, awards, or professional endorsement;
-> altering, forging, misrepresenting, or misusing a University academic
-> record; or fabricating or falsifying data, research procedures, or
-> data analysis.
+### Accessibility and institutional support
 
-Within this course, a student responsible for scholastic dishonesty can
-be assigned a penalty up to and including an "F" or "N" for the course.
-If you have any questions regarding the expectations for a specific
-assignment or exam, ask.
+The University of Minnesota views disability as an important aspect of diversity, and is committed to providing equitable access to learning opportunities for all students. The Disability Resource Center (DRC) is the campus office that collaborates with students who have disabilities to provide and/or arrange reasonable accommodations.
 
-Final words
------------
+   * If you have, or think you have, a disability in any area such as, mental health, attention, learning, chronic health, sensory, or physical, please contact the DRC office on your campus (UM Morris 320.589.6178) to arrange a confidential discussion regarding equitable access and reasonable accommodations.
+   * Students with short-term disabilities, such as a broken arm, should be able to work with instructors to remove classroom barriers. In situations where additional assistance is needed, students should contact the DRC as noted above.
+   * If you are registered with the DRC and have a disability accommodation letter dated for this semester or this year, please contact your instructor early in the semester to review how the accommodations will be applied in the course.
+   * If you are registered with the DRC and have questions or concerns about your accommodations please contact the Coordinator of the Disability Resource Center.
 
--   Policy is subject to change, but only with advanced warning given in
-    class suitably far in advance.
--   Major changes are unexpected.
--   It is University policy to provide reasonable accommodations to
-    students with disabilities. This publication/material is available
-    in alternative formats to persons with disabilities upon request.
-    Please contact the Disability Services office, 589-6163, Room 362
-    Briggs Library to discuss accommodation needs.
--   University policy prohibits sexual harassment as defined by the
-    University of Minnesota Regents' policy:
-    <http://regents.umn.edu/sites/regents.umn.edu/files/policies/SexHarassment.pdf>
--   Additional relevant university-wide policies may be found online:
-    <http://policy.umn.edu/Policies/Education/Education/SYLLABUSREQUIREMENTS_APPA.html>.
--   You should work together whenever possible, but the act of copying
-    or other forms of cheating will not be tolerated. Academic
-    dishonesty in any portion of the academic work for a course is
-    grounds for awarding a grade of F or N for the entire course. Any
-    act of plagiarism that is detected will result in a mark of zero on
-    the entire test or assignment for both parties. Please come and talk
-    to me if you have any questions about what constitutes
-    academic dishonesty. UMM's Academic Integrity policy and procedures
-    can be found at the following website: Academic Integrity
-    <http://committees.morris.umn.edu/academic-integrity>
--   As a student you may experience a range of issues that can cause
-    barriers to learning, such as strained relationships, increased
-    anxiety, alcohol/drug problems, feeling down, difficulty
-    concentrating, and/or lack of motivation. These mental health
-    concerns or stressful events may lead to diminished academic
-    performance or reduce your ability to participate in
-    daily activities. If you have any special needs or requirements to
-    help you succeed in the class, come and talk to me as soon as
-    possible, or visit the appropriate University service yourself. You
-    can learn more about the range of services available on campus by
-    visiting any of these websites:
-    -   [The Academic Assistance
-        Center](http://www.morris.umn.edu/services/dsoaac/aac)
-    -   [Student
-        Counseling](http://www.morris.umn.edu/services/counseling)
-    -   [Disability
-        Services](http://www.morris.umn.edu/services/dsoaac/dso)
-    -   [Equity, Diversity & Intercultural
-        Programs](http://www.morris.umn.edu/services/msp)
+Additional information and contact information is available on the DRC website: <https://academics.morris.umn.edu/office-academic-success/disability-resource-center>, or you can go visit then in the Library.
 
-References
-----------
+### Harassment
 
--   [Official University policy on grade
-    definitions](http://policy.umn.edu/Policies/Education/Education/GRADINGTRANSCRIPTS.html)
--   [Student conduct
-    code](http://regents.umn.edu/sites/default/files/policies/Student_Conduct_Code.pdf)
--   [Official policy on makeup work for legitimate
-    absences](http://policy.umn.edu/Policies/Education/Education/MAKEUPWORK.html)
--   [Board of Regents policy on student
-    responsiblity](http://policy.umn.edu/Policies/Education/Education/STUDENTRESP.html)
--   [Board of Regents policy on sexual
-    harassment](http://regents.umn.edu/sites/default/files/policies/SexHarassment.pdf)
--   [Board of Regents policy on equity, diversity, equal employment
-    opportunity, and affirmative
-    action](http://regents.umn.edu/sites/default/files/policies/Equity_Diversity_EO_AA.pdf)
--   [Board of Regents policy on disability
-    services](http://regents.umn.edu/sites/default/files/policies/DisabilityServices.pdf)
--   [Board of Regents policy on academic freedom and
-    responsibility](http://regents.umn.edu/sites/default/files/policies/Academic_Freedom.pdf)
+University policy prohibits sexual harassment as defined by the University of Minnesota Regents' policy. In general, harassment or intimidation of others in the class for whatever reason is unacceptable (and hardly conducive to a successful learning environment).
+
+### Equity, diversity, equal opportunity, and affirmative action
+
+The University provides equal access to and opportunity in its programs and facilities, without regard to race, color, creed, religion, national origin, gender, age, marital status, disability, public assistance status, veteran status, sexual orientation, gender identity, or gender expression. For more information, please consult Board of Regents Policy.
+
+### Academic Integrity
+
+Academic integrity is essential to a positive teaching and learning environment. All students enrolled in University courses are expected to complete coursework responsibilities with fairness and honesty. Failure to do so by seeking unfair advantage over others or misrepresenting someone else's work as your own, can result in disciplinary action. The University Student Conduct Code defines scholastic dishonesty as follows:
+
+> Scholastic dishonesty means plagiarism; cheating on assignments or examinations; engaging in unauthorized collaboration on academic work; taking, acquiring, or using test materials without faculty permission; submitting false or incomplete records of academic achievement; acting alone or in cooperation with another to falsify records or to obtain dishonestly grades, honors, awards, or professional endorsement; altering, forging, misrepresenting, or misusing a University academic record; or fabricating or falsifying data, research procedures, or data analysis.
+
+Within this course, a student responsible for scholastic dishonesty can be assigned a penalty up to and including an "F" or "N" for the course. If you have any questions regarding the expectations for a specific assignment or exam, ask.
