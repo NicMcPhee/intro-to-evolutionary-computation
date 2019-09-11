@@ -31,7 +31,7 @@
   "Generate a list of all the possible child states
    reachable from the given initial position."
   [position]
-  (map (partial apply-move position) all-moves))
+  (filter legal-state (map (partial apply-move position) all-moves)))
 
 (defn goal?
   "A goal checking function that assumes the target
