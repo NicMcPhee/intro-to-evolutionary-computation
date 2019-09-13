@@ -3,10 +3,7 @@
 
 (defn remove-previous-states
   [new-states frontier visited]
-  (cset/difference
-   ; The function `set` takes a collection and returns a set with those items
-   (set new-states)
-   (cset/union (set frontier) (set visited))))
+  (remove (cset/union (set frontier) (set visited)) new-states))
 
 (def depth-first-search
   {:get-next-node first
