@@ -20,22 +20,37 @@
   {:get-next-node rand-nth
    :add-children concat})
 
+(defn path-to
+  [came-from node]
+  (loop [current node
+         path '()]
+    (let [parent (get came-from current)]
+      (if (= parent :start-node)
+        (conj path current)
+        (recur parent (conj path current))))))
+
 (defn search
   [{:keys [get-next-node add-children]}
    {:keys [goal? make-children]}
    start-node max-calls]
- (loop [frontier [start-node]
-        visited #{}
-        num-calls 0]
-  (println num-calls ": " frontier)
-  (let [next-node (get-next-node frontier)]
-    (cond
-      (goal? next-node) next-node
-      (= num-calls max-calls) :max-calls-reached
-      :else
-      (recur
-       (add-children
-        (remove-previous-states (make-children next-node) frontier visited)
-        (rest frontier))
-       (conj visited next-node)
-       (inc num-calls))))))
+  (loop [frontier [start-node]
+         visited #{}
+         came-from {start-node :start-node}
+         num-calls 0]
+    (println num-calls ": " frontier)
+    (println came-from)
+    (let [next-node (get-next-node frontier)]
+      (cond
+        (goal? next-node) came-from ; (path-to visited next-node)
+        (= num-calls max-calls) :max-calls-reached
+        :else
+        (let [kids (make-children next-node)]
+          (recur
+           (add-children
+            (remove-previous-states kids frontier visited)
+            (rest frontier))
+           (conj visited next-node)
+           (merge
+            (reduce (fn [cf child] (assoc cf child next-node)) {} kids)
+            came-from)
+           (inc num-calls)))))))
