@@ -25,17 +25,19 @@
    {:keys [goal? make-children]}
    start-node max-calls]
  (loop [frontier [start-node]
-        visited #{}
+        visited {}
         num-calls 0]
   (println num-calls ": " frontier)
-  (let [next-node (get-next-node frontier)]
+  (println visited)
+  (let [current-node (get-next-node frontier)
+        kids (remove-previous-states (make-children current-node) frontier (keys visited))]
     (cond
-      (goal? next-node) next-node
+      (goal? current-node) current-node
       (= num-calls max-calls) :max-calls-reached
       :else
       (recur
        (add-children
-        (remove-previous-states (make-children next-node) frontier visited)
+        kids
         (rest frontier))
-       (conj visited next-node)
+       (reduce (fn [vs child] (assoc vs child current-node)) visited kids)
        (inc num-calls))))))
