@@ -63,5 +63,9 @@
    `wall-set` is a (possibly empty) set of positions that can't be entered
    or crossed."
   [min-range max-range wall-set]
-  {:goal? origin-goal?
-   :make-children (partial grid-children min-range max-range wall-set)})
+  {:goal [0 0]
+   :make-children (partial
+                   grid-children
+                   min-range
+                   max-range
+                   wall-set)})
