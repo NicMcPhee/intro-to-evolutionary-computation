@@ -9,12 +9,14 @@
     :add-children concat})
 
 "Heuristic Search"
+"Distance"
 (defn distance-heuristic
   [node goal]
   (+ (Math/abs (- (first node) (first goal))) (Math/abs (- (second node) (second goal)))))
 
 (defn add-heuristic-priority
   [kid goal] [kid (distance-heuristic kid goal)])
+
 (defn add-heuristic-priority-map
   [kids goal] (map (fn [kid] (add-heuristic-priority kid goal)) kids))
 
@@ -27,8 +29,46 @@
    :add-children reduce-frontier-distance
    })
 
-"A*"
+"2 Horizontal = Vertical cost"
+(defn vertical-heuristic
+  [node goal]
+  (+ (Math/abs  (- (first node) (first goal))) (* 2 (Math/abs (- (second node) (second goal))))))
 
+(defn add-vertical-priority
+  [kid goal] [kid (vertical-heuristic kid goal)])
+
+(defn add-vertical-priority-map
+  [kids goal] (map (fn [kid] (add-vertical-priority kid goal)) kids))
+
+(defn reduce-frontier-distance-vertical
+  [frontier kids goal nothing]
+  (into frontier (add-vertical-priority-map kids goal)))
+
+(def vertical-search
+  {:get-next-node (fn [pmap](first (first pmap)))
+   :add-children reduce-frontier-distance-vertical
+   })
+
+"Horizontal = 2 Vertical cost"
+   (defn horizontal-heuristic
+     [node goal]
+     (+ (Math/abs  (* 2 (- (first node) (first goal)))) (Math/abs (- (second node) (second goal)))))
+
+   (defn add-horizontal-priority
+     [kid goal] [kid (horizontal-heuristic kid goal)])
+
+   (defn add-horizontal-priority-map
+     [kids goal] (map (fn [kid] (add-horizontal-priority kid goal)) kids))
+
+   (defn reduce-frontier-distance-horizontal
+     [frontier kids goal nothing]
+     (into frontier (add-horizontal-priority-map kids goal)))
+
+   (def horizontal-search
+     {:get-next-node (fn [pmap](first (first pmap)))
+      :add-children reduce-frontier-distance-horizontal
+      })
+"A*"
 (defn a*-heuristic
   [node goal steps]
   (+ steps (Math/abs (- (first node) (first goal))) (Math/abs (- (second node) (second goal)))))
