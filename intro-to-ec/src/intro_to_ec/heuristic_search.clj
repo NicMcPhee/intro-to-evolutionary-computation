@@ -19,7 +19,7 @@
   [kids goal] (map (fn [kid] (add-heuristic-priority kid goal)) kids))
 
 (defn reduce-frontier-distance
-  [frontier kids goal]
+  [frontier kids goal nothing]
   (into frontier (add-heuristic-priority-map kids goal)))
 
 (def distance-search
@@ -58,7 +58,6 @@
       [node]
       (conj (generate-path came-from (get came-from node)) node)))
 
-"The error is somewhere around here."
 (defn get-path-length
   [came-from node len]
   (if (= :start-node (get came-from node))
@@ -85,6 +84,7 @@
     (let [current-node (get-next-node frontier)]
       (println current-node)
       (cond
+        (empty? frontier) :no-solutions
         (is-goal? current-node goal) (generate-path came-from current-node)
         (= num-calls max-calls) :max-calls-reached
         :else
@@ -97,6 +97,6 @@
             (dissoc frontier current-node)
             kids
             goal
-            (get-path-length start-node current-node 0))
+            (get-path-length came-from current-node 0))
            (reduce (fn [cf child] (assoc cf child current-node)) came-from kids)
            (inc num-calls)))))))
