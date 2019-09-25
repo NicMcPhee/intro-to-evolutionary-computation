@@ -52,3 +52,9 @@
                  (map (fn [x y] [x y])
                       (state->vec goal-state)
                       (state->vec current-state)))))
+
+(defn make-n-puzzle-problem
+  [goal-board heuristic]
+  {:goal? #(= goal-board (:board %))
+   :make-children children
+   :heuristic heuristic})
