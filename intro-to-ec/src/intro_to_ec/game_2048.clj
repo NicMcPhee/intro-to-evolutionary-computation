@@ -1,6 +1,9 @@
 (ns intro-to-ec.game-2048)
 
-(def blank-board [1 1 1 0 1 0 0 0 2 0 0 0 0 0 0 0])
+(def blank-board [1 1 1 0 
+                  1 0 0 0 
+                  2 0 0 0 
+                  0 0 0 0])
 
 (defn print-board
   [board]
@@ -40,7 +43,6 @@
   [n row1 row2 row3 row4]
   [(nth row1 n) (nth row2 n) (nth row3 n) (nth row4 n)])
 
-
 (defn move-left
   [board]
   (concat (pad-length-4 (vec (process-seq (vec (first (partition 4 board))))))
@@ -66,8 +68,8 @@
           r2 (vec (pad-length-4 (vec (process-seq (vec (get-col 1 row1 row2 row3 row4))))))
           r3 (vec (pad-length-4 (vec (process-seq (vec (get-col 2 row1 row2 row3 row4))))))
           r4 (vec (pad-length-4 (vec (process-seq (vec (get-col 3 row1 row2 row3 row4))))))]
-    (concat (get-col 0 r1 r2 r3 r4)
-            (get-col 1 r1 r2 r3 r4)
+    (concat (get-col 0 r1 r2 r3 r4) 
+            (get-col 1 r1 r2 r3 r4) 
             (get-col 2 r1 r2 r3 r4)
             (get-col 3 r1 r2 r3 r4)))))
 
