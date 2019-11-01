@@ -1,5 +1,17 @@
 (ns intro-to-ec.game-2048)
 
+; intro-to-ec.game-2048=>
+; (reduce (fn [b m] (update b :board m)) blank-game [move-left move-down])
+; {:board (0 0 0 0 2 0 0 0 1 0 0 0 2 1 0 0), :score 0}
+
+; intro-to-ec.game-2048=>
+; (print-board (:board (update (update blank-game :board move-left) :board move-down)))
+; (0 0 0 0)
+; (2 0 0 0)
+; (1 0 0 0)
+; (2 1 0 0)
+; nil
+
 (def blank-board [1 1 1 0 
                   1 0 0 0 
                   2 0 0 0 
