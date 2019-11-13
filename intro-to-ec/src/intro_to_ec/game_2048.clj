@@ -1,7 +1,7 @@
 (ns intro-to-ec.game-2048)
 
 "Setup start state"
-(def blank-board [1 1 1 0 1 0 0 0 2 0 0 0 0 0 0 0])
+(def blank-board [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
 
 (def blank-game {:score 0
                  :board blank-board})
@@ -19,7 +19,6 @@
 (defn process-seq
   ([xs] (process-seq (first xs) (rest xs)))
   ([last xs]
-   (println )
    (cond
      (empty? xs)
      (if (> last 0)
@@ -97,8 +96,36 @@
   (let [zeroLoc (filter #(zero? (nth blank-board %)) (range 16))]
     (assoc board (rand-nth zeroLoc) 1)))
 
-
 (defn computer-turn
   [game]
   {:score (game :score)
    :board (generate (game :board))})
+
+"Game Loop"
+
+(def game {
+           :score 0
+           :board (generate blank-board)})
+
+(defn new-game 
+  []
+  (def game {
+            :score 0
+            :board (generate blank-board)}))
+(defn up
+  [game]
+  (def game (computer-turn {:score 0
+                  :board (vec (move-up (game :board)))})))
+
+(defn down
+  [game]
+  (def game (computer-turn {:score 0
+                            :board (vec (move-down (game :board)))})))
+(defn left
+  [game]
+  (def game (computer-turn {:score 0
+                            :board (vec (move-left (game :board)))})))
+(defn right
+  [game]
+  (def game (computer-turn {:score 0
+                            :board (vec (move-right (game :board)))})))
