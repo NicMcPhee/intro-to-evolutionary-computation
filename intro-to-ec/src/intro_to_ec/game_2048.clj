@@ -16,6 +16,7 @@
 (defn process-seq
   ([xs] (process-seq (first xs) (rest xs)))
   ([last xs]
+   (println )
    (cond
      (empty? xs)
      (if (> last 0)
@@ -86,3 +87,7 @@
               (get-col 2 r1 r2 r3 r4)
               (get-col 3 r1 r2 r3 r4)))))
 
+(defn generate
+  [board]
+  (let [zeroLoc (filter #(zero? (nth blank-board %)) (range 16))]
+    (assoc board (rand-nth zeroLoc) 1)))
