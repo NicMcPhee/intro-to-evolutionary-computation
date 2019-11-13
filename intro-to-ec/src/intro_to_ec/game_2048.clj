@@ -1,18 +1,21 @@
 (ns intro-to-ec.game-2048)
 
+"Setup start state"
 (def blank-board [1 1 1 0 1 0 0 0 2 0 0 0 0 0 0 0])
-
-(defn print-board
-  [board]
-  (let [board (vec board)]
-  (println (take 4 board))
-  (println (take 4 (subvec board 4)))
-  (println (take 4 (subvec board 8)))
-  (println (take 4 (subvec board 12)))))
 
 (def blank-game {:score 0
                  :board blank-board})
 
+"Utility Functions"
+(defn print-board
+  [board]
+  (let [board (vec board)]
+    (println (take 4 board))
+    (println (take 4 (subvec board 4)))
+    (println (take 4 (subvec board 8)))
+    (println (take 4 (subvec board 12)))))
+
+"Movement Functions"
 (defn process-seq
   ([xs] (process-seq (first xs) (rest xs)))
   ([last xs]
@@ -87,7 +90,15 @@
               (get-col 2 r1 r2 r3 r4)
               (get-col 3 r1 r2 r3 r4)))))
 
+
+"Computer Turn Code"
 (defn generate
   [board]
   (let [zeroLoc (filter #(zero? (nth blank-board %)) (range 16))]
     (assoc board (rand-nth zeroLoc) 1)))
+
+
+(defn computer-turn
+  [game]
+  {:score (game :score)
+   :board (generate (game :board))})
