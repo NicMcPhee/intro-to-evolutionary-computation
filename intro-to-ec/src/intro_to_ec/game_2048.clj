@@ -1,7 +1,7 @@
 (ns intro-to-ec.game-2048)
 
 "Setup start state"
-(def blank-board [1 1 2 1 0 0 0 0 0 0 0 0 0 0 0 0])
+(def blank-board [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
 
 (def blank-game {:score 0
                  :board blank-board})
@@ -93,42 +93,53 @@
 (defn generate
   [board]
   (let [zeroLoc (filter #(zero? (nth blank-board %)) (range 16))]
-    (assoc board (rand-nth zeroLoc) 1)))
+    (assoc board (rand-nth zeroLoc) 2)))
 
 (defn computer-turn
   [game]
   {:score (game :score)
    :board (generate (game :board))})
 
+"Deterministic Computer Turn Code"
+(defn determanistic-generate
+  [board]
+  (assoc board (.indexOf board 0) 2))
+
+(defn determanistic-computer-turn
+  [game]
+  {:score (game :score)
+   :board (determanistic-generate (game :board))})
+
+
 "Game Loop"
 
 (def game (atom {
            :score 0
-           :board (generate blank-board)}))
+           :board (determanistic-generate blank-board)}))
 
 (defn new-game 
   []
   (reset! game {
             :score 0
-            :board (generate blank-board)}))
+            :board (determanistic-generate blank-board)}))
 (defn up
   [game]
-  (reset! game (computer-turn {:score 0
+  (reset! game (determanistic-computer-turn {:score 0
                             :board (vec (move-up (@game :board)))}))
   (print-board (@game :board)))
 
 (defn down
   [game]
-  (reset! game (computer-turn {:score 0
+  (reset! game (determanistic-computer-turn {:score 0
                             :board (vec (move-down (@game :board)))}))
   (print-board (@game :board)))
 (defn left
   [game]
-  (reset! game (computer-turn {:score 0
+  (reset! game (determanistic-computer-turn {:score 0
                             :board (vec (move-left (@game :board)))}))
   (print-board (@game :board)))
 (defn right
   [game]
-  (reset! game (computer-turn {:score 0
+  (reset! game (determanistic-computer-turn {:score 0
                             :board (vec (move-right (@game :board)))}))
   (print-board (@game :board)))
