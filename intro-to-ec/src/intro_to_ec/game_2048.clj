@@ -1,7 +1,7 @@
 (ns intro-to-ec.game-2048)
 
 "Setup start state"
-(def blank-board [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+(def blank-board [1 1 2 1 0 0 0 0 0 0 0 0 0 0 0 0])
 
 (def blank-game {:score 0
                  :board blank-board})
@@ -102,29 +102,33 @@
 
 "Game Loop"
 
-(def game {
+(def game (atom {
            :score 0
-           :board (generate blank-board)})
+           :board (generate blank-board)}))
 
 (defn new-game 
   []
-  (def game {
+  (reset! game {
             :score 0
             :board (generate blank-board)}))
 (defn up
   [game]
-  (def game (computer-turn {:score 0
-                  :board (vec (move-up (game :board)))})))
+  (reset! game (computer-turn {:score 0
+                            :board (vec (move-up (@game :board)))}))
+  (print-board (@game :board)))
 
 (defn down
   [game]
-  (def game (computer-turn {:score 0
-                            :board (vec (move-down (game :board)))})))
+  (reset! game (computer-turn {:score 0
+                            :board (vec (move-down (@game :board)))}))
+  (print-board (@game :board)))
 (defn left
   [game]
-  (def game (computer-turn {:score 0
-                            :board (vec (move-left (game :board)))})))
+  (reset! game (computer-turn {:score 0
+                            :board (vec (move-left (@game :board)))}))
+  (print-board (@game :board)))
 (defn right
   [game]
-  (def game (computer-turn {:score 0
-                            :board (vec (move-right (game :board)))})))
+  (reset! game (computer-turn {:score 0
+                            :board (vec (move-right (@game :board)))}))
+  (print-board (@game :board)))
