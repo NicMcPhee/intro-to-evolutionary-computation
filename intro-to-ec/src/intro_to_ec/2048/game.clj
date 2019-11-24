@@ -1,4 +1,4 @@
-(ns intro-to-ec.game-2048)
+(ns intro-to-ec.2048.game)
 
 "Setup start state"
 (def full-board [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17])
