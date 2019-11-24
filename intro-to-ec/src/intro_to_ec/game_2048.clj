@@ -1,8 +1,8 @@
 (ns intro-to-ec.game-2048)
 
 "Setup start state"
+(def full-board [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17])
 (def blank-board [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
-
 (def blank-game {:score 0
                  :board blank-board})
 
@@ -107,7 +107,7 @@
 "Deterministic Computer Turn Code"
 (defn determanistic-generate
   [board]
-  (if (== (.indexOf board 0) -1) (determanistic-generate blank-board)
+  (if (== (.indexOf board 0) -1) board
   (assoc board (.indexOf board 0) 2)))
 
 (defn determanistic-computer-turn
@@ -121,32 +121,42 @@
            :score 0
            :board (determanistic-generate blank-board)}))
 
-; (defn new-game 
-;   []
-;   (reset! game {
-;             :score 0
-;             :board (determanistic-generate blank-board)}))
+ (defn new-game 
+   []
+   (reset! game {
+             :score 0
+             :board (determanistic-generate blank-board)}))
+
+(defn end-game
+  []
+  (reset! game {
+            :score 0
+            :board full-board}))
 
 (defn up
   [game]
+  (if (= (vec (move-up (@game :board))) (@game :board)) ()
   (reset! game (determanistic-computer-turn {:score 0
-                      :board (vec (move-up (@game :board)))}))
-
+                                             :board (vec (move-up (@game :board)))})))
   (print-board (@game :board)))
+
 (defn down
   [game]
+  (if (= (vec (move-down (@game :board))) (@game :board)) ()
   (reset! game (determanistic-computer-turn {:score 0
-                      :board (vec (move-down (@game :board)))}))
+                                             :board (vec (move-down (@game :board)))})))
   (print-board (@game :board)))
 
 (defn left
   [game]
+  (if (= (vec (move-left (@game :board))) (@game :board)) ()
   (reset! game (determanistic-computer-turn {:score 0
-                                             :board (vec (move-left (@game :board)))}))
+                                             :board (vec (move-left (@game :board)))})))
   (print-board (@game :board)))
   
 (defn right
   [game]
+  (if (= (vec (move-right (@game :board))) (@game :board)) ()
   (reset! game (determanistic-computer-turn {:score 0
-                      :board (vec (move-right (@game :board)))})))
-  (print-board (@game :board))
+                                             :board (vec (move-right (@game :board)))})))
+  (print-board (@game :board)))
