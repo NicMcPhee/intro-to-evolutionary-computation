@@ -112,51 +112,40 @@
 
 (defn determanistic-computer-turn
   [game]
-  {:score (game :score)
-   :board (determanistic-generate (game :board))})
+  (determanistic-generate game))
 
 "Game Loop"
 
-(def game (atom {
-           :score 0
-           :board (determanistic-generate blank-board)}))
+(def game (atom (determanistic-generate blank-board)))
 
  (defn new-game 
    []
-   (reset! game {
-             :score 0
-             :board (determanistic-generate blank-board)}))
+   (reset! game (determanistic-generate blank-board)))
 
 (defn end-game
   []
-  (reset! game {
-            :score 0
-            :board full-board}))
+  (reset! game full-board))
 
 (defn up
-  [game]
-  (if (= (vec (move-up (@game :board))) (@game :board)) ()
-  (reset! game (determanistic-computer-turn {:score 0
-                                             :board (vec (move-up (@game :board)))})))
-  (print-board (@game :board)))
+  [board]
+  (if (= (vec (move-up @board)) @board) ()
+  (reset! game (determanistic-computer-turn (vec (move-up @board)))))
+  (print-board @board))
 
 (defn down
-  [game]
-  (if (= (vec (move-down (@game :board))) (@game :board)) ()
-  (reset! game (determanistic-computer-turn {:score 0
-                                             :board (vec (move-down (@game :board)))})))
-  (print-board (@game :board)))
+  [board]
+  (if (= (vec (move-down @board)) @board) ()
+  (reset! game (determanistic-computer-turn (vec (move-down @board)))))
+  (print-board @board))
 
 (defn left
-  [game]
-  (if (= (vec (move-left (@game :board))) (@game :board)) ()
-  (reset! game (determanistic-computer-turn {:score 0
-                                             :board (vec (move-left (@game :board)))})))
-  (print-board (@game :board)))
+  [board]
+  (if (= (vec (move-left @board)) @board) ()
+  (reset! game (determanistic-computer-turn (vec (move-left @board)))))
+  (print-board @board))
   
 (defn right
-  [game]
-  (if (= (vec (move-right (@game :board))) (@game :board)) ()
-  (reset! game (determanistic-computer-turn {:score 0
-                                             :board (vec (move-right (@game :board)))})))
-  (print-board (@game :board)))
+  [board]
+  (if (= (vec (move-right @board)) @board) ()
+  (reset! game (determanistic-computer-turn (vec (move-right @board)))))
+  (print-board @board))
