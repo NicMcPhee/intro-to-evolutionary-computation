@@ -3,9 +3,10 @@
 "Setup start state"
 (def full-board [2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17])
 (def blank-board [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
+(def start-board [2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0])
 (def blank-game {:score 0
-                 :board blank-board})
 
+                 :board blank-board})
 "Utility Functions"
 (defn print-board
   [board]
@@ -149,3 +150,23 @@
   (if (= (vec (move-right @board)) @board) ()
   (reset! game (determanistic-computer-turn (vec (move-right @board)))))
   (print-board @board))
+
+(defn board-up
+  [board]
+  (if (= (vec (move-up board)) board) board
+      (reset! game (determanistic-computer-turn (vec (move-up board))))))
+
+(defn board-down
+  [board]
+  (if (= (vec (move-down board)) board) board
+      (reset! game (determanistic-computer-turn (vec (move-down board))))))
+
+(defn board-left
+  [board]
+  (if (= (vec (move-left board)) board) board
+      (reset! game (determanistic-computer-turn (vec (move-left board))))))
+
+(defn board-right
+  [board]
+  (if (= (vec (move-right board)) board) board
+      (reset! game (determanistic-computer-turn (vec (move-right board))))))
